@@ -18,7 +18,7 @@ public enum Color: Int, CustomStringConvertible {
     case green = 7
     case unspecified = -1 // Used only for tracks
     case locomotive = 8 // Used for cards, not tracks
-    
+
     static func colorForIndex(_ index: Int) -> Color? {
         switch index {
         case Color.red.rawValue: return .red
@@ -67,11 +67,11 @@ public enum Color: Int, CustomStringConvertible {
     }
 
     public var key: String {
-        return self.description
+        self.description
     }
-    
+
     public static func allCards() -> [Color] {
-        return [.red, .blue, .black, .white, .orange, .yellow, .pink, .green, .locomotive]
+        [.red, .blue, .black, .white, .orange, .yellow, .pink, .green, .locomotive]
     }
 }
 
@@ -83,23 +83,35 @@ public enum MCTSTTRError: Error {
     case dataError
 }
 
-class Deck {
+struct Deck {
     var cards: [Color] = []
-    
+
     init(colors: [Color] = Color.allCards(), cardsPerColor: Int = 8) {
         for color in colors {
-            for _ in 0..<cardsPerColor {
+            for _ in 0 ..< cardsPerColor {
                 cards.append(color)
             }
         }
     }
 }
 
-class Map {
+struct City {
+    var name: String
+}
+
+struct Track {
+    var endpoints: [City]
+    var color: Color
+}
+
+struct Player {
+    
+}
+
+struct Board {
     
 }
 
 class State {
     var deck: Deck = Deck()
-    
 }

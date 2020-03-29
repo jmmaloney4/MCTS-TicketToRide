@@ -1,16 +1,23 @@
-language: c
+language: c++
 
 os:
   - linux
   - osx
 
-compiler:
-  - gcc
-  - clang
+compiler: clang
 
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update; sudo apt-get install swift ; fi
+install:
+  # https://gist.github.com/Azoy/8c47629fa160878cf359bf7380aaaaf9
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update; sudo apt-get install libicu-dev; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then git clone https://github.com/kylef/swiftenv ~/.swiftenv; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export SWIFTENV_ROOT="$HOME/.swiftenv"; export PATH="$SWIFTENV_ROOT/bin:$PATH"; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew bundle install --file=./.Brewfile --verbose; fi
+  - eval "$(swiftenv init -)"
+  - swiftenv install $(cat .swift-version)
+  - swiftenv versions
+  - swiftenv version
+  - which swift
+  - swift --version
 
 script:
-  - swift --version
   - swift build
