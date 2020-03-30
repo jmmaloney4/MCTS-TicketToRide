@@ -96,22 +96,32 @@ struct Deck {
 }
 
 struct City {
-    var name: String
+    private(set) var name: String
 }
 
 struct Track {
-    var endpoints: [City]
-    var color: Color
+    private(set) var endpoints: [City]
+    private(set) var color: Color
+}
+
+struct Hand {
+    private var cards: [Color:Int]
 }
 
 struct Player {
-    
+    private(set) var hand: Hand
+    private(set) var traincars: Int
 }
 
 struct Board {
-    
+    private(set) var tracks:[Track]
 }
 
-class State {
+struct State {
     var deck: Deck = Deck()
+    var players: [Player]
+}
+
+struct Game {
+    
 }
