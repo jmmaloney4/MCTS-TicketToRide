@@ -10,7 +10,7 @@ import SwiftyJSON
 import PathKit
 
 class Board: CustomStringConvertible {
-    struct MatrixEntry {
+    struct MatrixEntry: Equatable {
         var length: Int
         var colors: [Color]
     }
@@ -30,12 +30,13 @@ class Board: CustomStringConvertible {
             for name in subJson["endpoints"] {
                 let name = name.1.string!
                 names.append(name)
+                
                 switch cities.filter({ $0.name == name }).count {
                 case 0:
                     let city = City(name)
                     cities.append(city)
                     matrix.append(Array(repeating: nil, count: cities.count))
-                    for i in 0..<matrix.count {
+                    for i in 0..<(matrix.count-1) {
                         matrix[i].append(nil)
                     }
                 case 1: break;
@@ -49,8 +50,27 @@ class Board: CustomStringConvertible {
                     else {
                         throw TTRError.invalidJSON
             }
-            
+         
+            try ensureMatrixConsistency()
             try insertTrack(cities: names.map({cityWithName($0)!.1}), length: length, color: color)
+        }
+        try ensureMatrixConsistency()
+    }
+    
+    private func ensureMatrixConsistency() throws {
+        for row in matrix {
+            guard row.count == cities.count else {
+                print("Row: \(row.count) != \(cities.count)")
+                throw TTRError.incosistentAdjacencyMatrix
+            }
+        }
+        
+        for i in 0..<cities.count {
+            for k in 0..<cities.count {
+                guard matrix[i][k] == matrix[k][i] else {
+                    throw TTRError.incosistentAdjacencyMatrix
+                }
+            }
         }
     }
     
@@ -72,7 +92,6 @@ class Board: CustomStringConvertible {
         matrix[indicies[1]][indicies[0]] = matrix[indicies[0]][indicies[1]]
     }
     
-    
     private func cityWithName(_ name: String) -> (Int, City)? {
         let index = self.cities.firstIndex(of: City(name))
         if index != nil {
@@ -82,7 +101,7 @@ class Board: CustomStringConvertible {
     }
     
 
-    func tracks() -> [Track] {
+    func allTracks() -> [Track] {
         var rv: [Track] = []
         for (i, city) in cities.enumerated() {
             for (k, entry) in matrix[i].enumerated() {
@@ -96,24 +115,43 @@ class Board: CustomStringConvertible {
         return rv
     }
 
-//    func adjacentTracks(_ city: City) -> [Track]? {
-//        guard let row = matrix[city] else {
-//            return nil
-//        }
-//        for x in row where x != nil {
-//            print("\(x!)")
-//        }
-//    }
-//
+    func adjacentTracks(_ city: City) -> [Track]? {
+        guard let index = cities.firstIndex(of: city) else {
+            return nil
+        }
+        var rv: [Track] = []
+        for entry in matrix[index] {
+            if entry != nil {
+                for color in entry!.colors {
+                    rv.append(Track(endpoints: [city], color: color, length: entry!.length))
+                }
+            }
+        }
+        
+        return rv
+    }
+
     func areAdjacent(_ a: City, _ b: City) -> Bool? {
         guard   let A = cities.firstIndex(of: a),
                 let B = cities.firstIndex(of: b) else {
             return nil
         }
         
-        
-        
-        return nil
+        return matrix[Int(A)][Int(B)] != nil
+    }
+    
+    func tracksBetween(_ a: City, _ b: City) -> [Track]? {
+        guard   let A = cities.firstIndex(of: a),
+                let B = cities.firstIndex(of: b) else {
+            return nil
+        }
+        var rv: [Track] = []
+        if matrix[Int(A)][Int(B)] != nil {
+            for color in matrix[Int(A)][Int(B)]!.colors {
+                rv.append(Track(endpoints: [a,b], color: color, length: matrix[Int(A)][Int(B)]!.length))
+            }
+        }
+        return rv
     }
 }
 
