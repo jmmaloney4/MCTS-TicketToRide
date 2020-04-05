@@ -107,7 +107,7 @@ class Board: CustomStringConvertible {
             for (k, entry) in matrix[i].enumerated() {
                 if entry != nil {
                     for color in entry!.colors {
-                        rv.append(Track(endpoints: [city, cities[k]], color: color, length: entry!.length))
+                        rv.append(Track(city, cities[k], color: color, length: entry!.length))
                     }
                 }
             }
@@ -120,10 +120,10 @@ class Board: CustomStringConvertible {
             return nil
         }
         var rv: [Track] = []
-        for entry in matrix[index] {
+        for (i, entry) in matrix[index].enumerated() {
             if entry != nil {
                 for color in entry!.colors {
-                    rv.append(Track(endpoints: [city], color: color, length: entry!.length))
+                    rv.append(Track(city, cities[i], color: color, length: entry!.length))
                 }
             }
         }
@@ -148,7 +148,7 @@ class Board: CustomStringConvertible {
         var rv: [Track] = []
         if matrix[Int(A)][Int(B)] != nil {
             for color in matrix[Int(A)][Int(B)]!.colors {
-                rv.append(Track(endpoints: [a,b], color: color, length: matrix[Int(A)][Int(B)]!.length))
+                rv.append(Track(a, b, color: color, length: matrix[Int(A)][Int(B)]!.length))
             }
         }
         return rv
@@ -179,6 +179,12 @@ struct Track: CustomStringConvertible {
     private(set) var endpoints: [City]
     private(set) var color: Color
     private(set) var length: Int
+    
+    init(_ a: City, _ b: City, color: Color, length: Int) {
+        self.endpoints = [a,b]
+        self.color = color
+        self.length = length
+    }
     
     var description: String {
         return "<\(length) \(color) from \(endpoints[0].name) to \(endpoints[1].name)>"
