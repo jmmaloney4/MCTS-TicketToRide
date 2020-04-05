@@ -14,3 +14,6 @@ install:
 
 script:
   - swift build
+  - swift run TTR ./iberia.json
+  - swift run TTR ./iberia2.json
+  - swift run TTR ./europe.json

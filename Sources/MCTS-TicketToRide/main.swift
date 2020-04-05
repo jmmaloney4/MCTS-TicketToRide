@@ -26,7 +26,7 @@ struct MCTS: ParsableCommand {
     func run() throws {
         let board = try Board(fromFile: Path(path))
         print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
-        print("\(board.tracksBetween(City("Paris"), City("Bruxelles"))!)")
+        print("\(board.tracksBetween(City("Paris"), City("Pamplona"))!)")
         print("\(board.adjacentTracks(City("Paris"))!)")
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 struct Deck {
     var cards: [Color] = []
 
-    init(colors: [Color] = Color.allCards(), cardsPerColor: Int = 8) {
+    init(colors: [Color] = Color.simpleCards(), cardsPerColor: Int = 8) {
         for color in colors {
             for _ in 0 ..< cardsPerColor {
                 cards.append(color)

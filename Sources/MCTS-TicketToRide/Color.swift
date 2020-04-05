@@ -73,4 +73,8 @@ public enum Color: Int, CustomStringConvertible {
     public static func allCards() -> [Color] {
         [.red, .blue, .black, .white, .orange, .yellow, .pink, .green, .locomotive]
     }
+    
+    public static func simpleCards() -> [Color] {
+        [.red, .blue, .black, .white, .orange, .yellow, .pink, .green]
+    }
 }
