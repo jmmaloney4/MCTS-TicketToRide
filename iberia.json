@@ -1,0 +1,86 @@
+[
+	{
+		"endpoints": ["Paris", "Pamplona"],
+		"color": "Blue",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Paris", "Pamplona"],
+		"color": "Green",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Paris", "Marseille"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Pamplona", "Madrid"],
+		"color": "Black",
+		"length": 3,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Pamplona", "Madrid"],
+		"color": "White",
+		"length": 3,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Pamplona", "Marseille"],
+		"color": "Red",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Pamplona", "Barcelona"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Madrid", "Barcelona"],
+		"color": "Yellow",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Madrid", "Cadiz"],
+		"color": "Orange",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Madrid", "Lisboa"],
+		"color": "Pink",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Marseille", "Barcelona"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Cadiz", "Lisboa"],
+		"color": "Blue",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	}
+]

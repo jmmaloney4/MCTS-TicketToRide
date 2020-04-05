@@ -38,15 +38,6 @@
         }
       },
       {
-        "package": "SwiftGraph",
-        "repositoryURL": "https://github.com/davecom/SwiftGraph.git",
-        "state": {
-          "branch": null,
-          "revision": "3e9ed26e380b40fcadf80ef5d588829ced251673",
-          "version": "3.0.0"
-        }
-      },
-      {
         "package": "SwiftyJSON",
         "repositoryURL": "https://github.com/IBM-Swift/SwiftyJSON.git",
         "state": {
