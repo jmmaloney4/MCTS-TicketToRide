@@ -6,16 +6,26 @@
 //
 
 import Foundation
+import Squall
 
-struct Deck {
-    var cards: [Color] = []
+struct Rules {
+    var initialHandCount = 3
+}
 
-    init(colors: [Color] = Color.simpleCards(), cardsPerColor: Int = 8) {
-        for color in colors {
-            for _ in 0 ..< cardsPerColor {
-                cards.append(color)
-            }
-        }
+protocol Deck {
+    func draw() -> Color
+}
+
+struct FixedProbabilityDeck: Deck {
+    var rng: Gust = Gust(seed: UInt32(Date.init(timeIntervalSinceNow: 0).hashValue))
+    var colors: [Color]
+    
+    init(colors: [Color] = Color.simpleCards()) {
+        self.colors = colors
+    }
+    
+    func draw() -> Color {
+        self.colors[Int(rng.random() % UInt32(self.colors.count))]
     }
 }
 
@@ -29,7 +39,7 @@ struct Player {
 }
 
 struct State {
-    var deck: Deck = Deck()
+    var deck: Deck = FixedProbabilityDeck()
     var players: [Player]
 }
 
@@ -49,4 +59,8 @@ struct Game {
     func start() {
         
     }
+}
+
+protocol PlayerController {
+    
 }
