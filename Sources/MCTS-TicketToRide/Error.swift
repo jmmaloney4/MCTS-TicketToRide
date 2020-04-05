@@ -13,4 +13,6 @@ public enum TTRError: Error {
     case jsonToStringError
     case socketError
     case dataError
+    case incosistentAdjacencyMatrix
+    case invalidTrackLength
 }
