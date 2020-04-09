@@ -8,34 +8,13 @@
 import Foundation
 import Squall
 
-struct Rules {
-    var initialHandCount = 3
-}
-
-protocol Deck {
-    func draw() -> Color
-}
-
-struct FixedProbabilityDeck: Deck {
-    var rng: Gust = Gust(seed: UInt32(Date.init(timeIntervalSinceNow: 0).hashValue))
-    var colors: [Color]
-    
-    init(colors: [Color] = Color.simpleCards()) {
-        self.colors = colors
-    }
-    
-    func draw() -> Color {
-        self.colors[Int(rng.random() % UInt32(self.colors.count))]
-    }
-}
-
 struct Hand {
     private var cards: [Color:Int]
 }
 
 struct Player {
-    private(set) var hand: Hand
-    private(set) var traincars: Int
+    var hand: Hand
+    var traincars: Int
 }
 
 struct State {
@@ -46,18 +25,24 @@ struct State {
 struct Game {
     private(set) var players: [Player]
     private(set) var board: Board
+    private(set) var deck: Deck
+    private(set) var rules: Rules
     
-    init(board: Board, players: Player...) {
-        self.init(board: board, players: players)
+    init(board: Board, deck: Deck, rules: Rules, players: Player...) {
+        self.init(board: board, deck: deck, rules: rules, players: players)
     }
     
-    init(board: Board, players: [Player]) {
+    init(board: Board, deck: Deck, rules: Rules, players: [Player]) {
         self.players = players
         self.board = board
+        self.deck = deck
+        self.rules = rules
     }
     
-    func start() {
-        
+    mutating func start() {
+        for (i, _) in players.enumerated() {
+            // players[i].hand = Hand(self.deck.draw(count: self.rules.initialHandCount))
+        }
     }
 }
 
