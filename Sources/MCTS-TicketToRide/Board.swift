@@ -155,7 +155,7 @@ class Board: CustomStringConvertible {
     }
 }
 
-class City: CustomStringConvertible, Equatable, Hashable {
+struct City: CustomStringConvertible, Equatable, Hashable {
     private(set) var name: String
     
     init(_ name: String) {
