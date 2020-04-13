@@ -8,5 +8,6 @@
 import Foundation
 
 struct Rules {
-    var initialHandCount = 3
+    static var initialHandCount = 4         // Europe Rules: 4
+    static var initialTraincarCount = 45    // Eurpoe Rules: 45
 }
