@@ -175,7 +175,7 @@ struct City: CustomStringConvertible, Equatable, Hashable {
     }
 }
 
-struct Track: CustomStringConvertible {
+class Track: CustomStringConvertible, Equatable {
     private(set) var endpoints: [City]
     private(set) var color: Color
     private(set) var length: Int
@@ -188,5 +188,10 @@ struct Track: CustomStringConvertible {
     
     var description: String {
         return "<\(length) \(color) from \(endpoints[0].name) to \(endpoints[1].name)>"
+    }
+    
+    static func == (lhs: Track, rhs: Track) -> Bool {
+        return Set(lhs.endpoints) == Set(rhs.endpoints)
+            && lhs.color == rhs.color && lhs.length == rhs.length
     }
 }

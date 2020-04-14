@@ -28,6 +28,8 @@ struct MCTS: ParsableCommand {
         print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
         print("\(board.tracksBetween(City("Paris"), City("Pamplona"))!)")
         print("\(board.adjacentTracks(City("Paris"))!)")
+        
+        let game = Game(board: board, deck: Deck(), players: MCTSAIPlayerInterface(), MCTSAIPlayerInterface())
     }
 }
 

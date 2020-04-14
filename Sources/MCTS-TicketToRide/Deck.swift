@@ -12,7 +12,7 @@ func newGust() -> Gust {
     return Gust(seed: UInt32(Date.init(timeIntervalSinceNow: 0).hashValue))
 }
 
-struct Deck{
+struct Deck {
     // Gust is a class type, which is what we want, that way the deck is
     // random each time we draw it, rather than giving the same color every time a state is queried.
     var rng: Gust = newGust()
@@ -29,6 +29,41 @@ struct Deck{
     func draw(_ count: Int) -> [Color] {
         var rv: [Color] = []
         (0..<count).forEach({ _ in rv.append(self.draw()) })
+        return rv
+    }
+}
+
+struct Hand {
+    private var cards: [Color:Int]
+    
+    init(deck: Deck) {
+        self.cards = Hand.cardArrayToDict(deck.draw(Rules.initialHandCount))
+    }
+    
+    func cardsOf(_ color: Color) -> Int {
+        return self.cards[color] ?? 0
+    }
+    
+    func maxColorCount() -> (Color, Int) {
+        var tmp: Color?
+        for (color, count) in self.cards where tmp == nil || count > self.cards[tmp!] ?? 0 {
+            tmp = color
+        }
+        if tmp == nil {
+            return (.red, 0)
+        }
+        return (tmp!, self.cards[tmp!] ?? 0)
+    }
+    
+    private static func cardArrayToDict(_ arr: [Color]) -> [Color:Int] {
+        var rv: [Color:Int] = [:]
+        for color in arr {
+            if rv[color] != nil {
+                rv[color]! += 1
+            } else {
+                rv[color] = 1
+            }
+        }
         return rv
     }
 }
