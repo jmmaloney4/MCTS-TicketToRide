@@ -51,10 +51,12 @@ class MCTSNode {
     }
     
     // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
-//    func computeUCT() -> [Double] {
-//        let vi = Double(self.countWon) / Double(self.countVisited)
-//        // sqrt(<#T##Double#>)
-//    }
+    func computeUCT() -> [Double] {
+        
+        
+        let vi = Double(self.countWon) / Double(self.countVisited)
+        // sqrt(log())
+    }
 }
 
 struct State {
@@ -98,6 +100,33 @@ struct State {
         for track in tracksBuildable(ByPlayer: turn) {
             rv.append(.build(track))
         }
+        return rv
+    }
+    
+    func asResultOfAction(_ action: TurnAction) -> State? {
+        var rv = self
+        switch action {
+        case .draw:
+            _ = rv.players[turn].hand.addCard(rv.deck.draw())
+        case .build(let track):
+            switch track.color {
+            case .unspecified:
+                guard rv.players[turn].hand.playCards(count: track.length) != nil else {
+                    return nil
+                }
+            default:
+                guard rv.players[turn].hand.playCards(track.color, count: track.length) != nil else {
+                    return nil
+                }
+            }
+        }
+        
+        if self.turn < players.count - 1 {
+            rv.turn += 1
+        } else {
+            rv.turn = 0
+        }
+        
         return rv
     }
 }

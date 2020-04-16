@@ -66,4 +66,35 @@ struct Hand {
         }
         return rv
     }
+    
+    mutating func addCard(_ color: Color) -> Int {
+        if self.cards[color] != nil {
+            self.cards[color]! += 1
+        } else {
+            self.cards[color] = 1
+        }
+        return self.cards[color]!
+    }
+    
+    mutating func removeCard(_ color: Color) -> Int? {
+        if self.cards[color] != nil && self.cards[color]! > 0 {
+            self.cards[color]! -= 1
+            return self.cards[color]!
+        }
+        return nil
+    }
+    
+    mutating func playCards(_ color: Color? = nil, count: Int) -> (Int, Color)? {
+        var tmp = color
+        if tmp == nil {
+            tmp = self.maxColorCount().0
+        }
+        let color = tmp!
+        
+        if self.cards[color] != nil && self.cards[color]! >= count {
+            self.cards[color]! -= count
+            return (self.cards[color]!, color)
+        }
+        return nil
+    }
 }
