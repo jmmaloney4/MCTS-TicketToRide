@@ -1,6 +1,6 @@
 @article{alphago, title={Mastering the game of Go with deep neural networks and tree search}, volume={529}, DOI={10.1038/nature16961}, number={7587}, journal={Nature}, author={Silver, David and Huang, Aja and Maddison, Chris J. and Guez, Arthur and Sifre, Laurent and Driessche, George Van Den and Schrittwieser, Julian and Antonoglou, Ioannis and Panneershelvam, Veda and Lanctot, Marc and et al.}, year={2016}, pages={484–489}}
 
-@InProceedings{10.1007/978-3-642-20525-5_6,
+@InProceedings{mmcts,
 author="Auger, David",
 editor="Di Chio, Cecilia
 and Cagnoni, Stefano
@@ -24,7 +24,7 @@ abstract="We propose an algorithm for computing approximate Nash equilibria of p
 isbn="978-3-642-20525-5"
 }
 
-@InProceedings{10.1007/978-3-642-12993-3_3,
+@InProceedings{mcts_settlers,
 author="Szita, Istv{\'a}n
 and Chaslot, Guillaume
 and Spronck, Pieter",
@@ -40,7 +40,7 @@ abstract="Games are considered important benchmark opportunities for artificial 
 isbn="978-3-642-12993-3"
 }
 
-@articlesDBLP{journals/corr/abs-1712-01815,
+@articlesDBLP{chess_shogi_self_play,
   author    = {David Silver and
                Thomas Hubert and
                Julian Schrittwieser and
@@ -95,4 +95,42 @@ title = {A Survey of Monte Carlo Tree Search Methods},
 volume = {4:1},
 journal = {IEEE Transactions on Computational Intelligence and AI in Games},
 doi = {10.1109/TCIAIG.2012.2186810}
+}
+
+@article{bandit_algorithms,
+author = {Coquelin, Pierre and Munos, Remi},
+year = {2007},
+month = {04},
+pages = {},
+title = {Bandit Algorithms for Tree Search}
+}
+
+@paper{rave,
+	author = {Tristan Cazenave},
+	title = {Generalized Rapid Action Value Estimation},
+	conference = {International Joint Conference on Artificial Intelligence},
+	year = {2015},
+	keywords = {},
+	abstract = {Monte Carlo Tree Search (MCTS) is the state of the art algorithm for many games including the game of Go and General Game Playing (GGP). The standard algorithm for MCTS is Upper Confidence bounds applied to Trees (UCT). For games such as Go a big improvement over UCT is the Rapid Action Value Estimation (RAVE) heuristic. We propose to generalize the RAVE heuristic so as to have more accurate estimates near the leaves. We test the resulting algorithm named GRAVE for Atarigo, Knighthrough, Domineering and Go.},
+
+	url = {https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10774/10768}
+}
+
+@paper{belief_sampling,
+	author = {Paolo Ciancarini and Gian Piero Favini},
+	title = {Monte Carlo Tree Search Techniques in the Game of Kriegspiel},
+	conference = {International Joint Conference on Artificial Intelligence},
+	year = {2009},
+	keywords = {Kriegspiel; imperfect information; Monte Carlo tree search; planning under uncertainty;  search algorithms; heuristic search},
+	abstract = {Monte Carlo tree search has brought significant improvements to the level of computer players in games such as Go, but so far it has not been used very extensively in games of strongly imperfect information with a dynamic board and an emphasis on risk management and decision making under uncertainty. In this paper we explore its application to the game of Kriegspiel (invisible chess), providing three Monte Carlo methods of increasing strength for playing the game with little specific knowledge. We compare these Monte Carlo agents to the strongest known minimax-based Kriegspiel player, obtaining significantly better results with a considerably simpler logic and less domain-specific knowledge.},
+
+	url = {https://www.aaai.org/ocs/index.php/IJCAI/IJCAI-09/paper/view/396/693}
+}
+
+@inproceedings{large_belief_states,
+author = {Parker, Austin and Nau, Dana and Subrahmanian, V.},
+year = {2005},
+month = {01},
+pages = {254-259},
+title = {Game-Tree Search with Combinatorially Large Belief States.}
 }
