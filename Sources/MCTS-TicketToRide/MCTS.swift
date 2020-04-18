@@ -79,8 +79,8 @@ class MCTSNode {
         }
         for move in moves {
             var explore: Double
-            if let child = self.children[move] {
-                explore = sqrt(log(Double(self.countVisited)) / Double(child.countVisited))
+            if let child = self.children[move], child.countVisited > 0 {
+                explore = sqrt(log(Double(self.countVisited + 1)) / Double(child.countVisited))
             } else {
                 explore = 1
             }

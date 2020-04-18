@@ -137,7 +137,7 @@ protocol Player {
 class MCTSAIPlayerInterface: Player {
     func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
         let rng = newGust()
-        for k in 0..<10 {
+        for k in 0..<100 {
             try tree.runSimulation(rng: rng)
         }
         return tree.root.maxUCT()
