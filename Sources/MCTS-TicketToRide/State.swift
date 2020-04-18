@@ -35,7 +35,7 @@ class MCTSTree {
 }
 
 class MCTSNode {
-    private(set) var children: [MCTSNode] = []
+    private(set) var children: [TurnAction:MCTSNode] = [:]
     private(set) var state: State
     
     private(set) var countVisited: Int = 0
@@ -45,17 +45,38 @@ class MCTSNode {
         self.state = state
     }
     
-    init(asChildOf parent: MCTSNode) {
-        self.state = parent.state
-        parent.children.append(self)
+    init(asResultOf action: TurnAction, parent: MCTSNode) throws {
+        if parent.children[action] != nil { throw TTRError.childAlreadyExists }
+        guard let state = parent.state.asResultOfAction(action) else {
+            throw TTRError.invalidAction
+        }
+        self.state = state
+        parent.children[action] = self
     }
     
     // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
     func computeUCT() -> [Double] {
+        self.countVisited += 1
         
-        
-        let vi = Double(self.countWon) / Double(self.countVisited)
-        // sqrt(log())
+        var rv: [Double] = []
+        let moves = state.getLegalMoves()
+        print(moves)
+        let expected = Double(self.countWon) / Double(self.countVisited)
+        for move in moves {
+            var explore: Double
+            if let child = getChild(asResultOf: move) {
+                explore = sqrt(log(Double(self.countVisited)) / Double(child.countVisited))
+            } else {
+                explore = 1
+            }
+            let uct = expected + Rules.uctExplorationConstant * explore
+            rv.append(uct)
+        }
+        return rv
+    }
+    
+    func getChild(asResultOf action: TurnAction) -> MCTSNode? {
+        return self.children[action]
     }
 }
 
@@ -68,7 +89,7 @@ struct State {
     init(asRootOf game: Game, withDeck deck: Deck) {
         self.game = game
         self.deck = deck
-        for _ in players {
+        for _ in game.players {
             self.players.append(PlayerState(hand: Hand(deck: self.deck)))
         }
     }
@@ -95,7 +116,7 @@ struct State {
         })
     }
     
-    func getAllMoves() -> [TurnAction] {
+    func getLegalMoves() -> [TurnAction] {
         var rv: [TurnAction] = [.draw]
         for track in tracksBuildable(ByPlayer: turn) {
             rv.append(.build(track))
@@ -131,7 +152,7 @@ struct State {
     }
 }
 
-enum TurnAction {
+enum TurnAction: Hashable {
     case draw
     case build(Track)
 }
@@ -155,7 +176,12 @@ class Game {
     }
     
     func start() {
-        
+        for p in state.players {
+            print(p.hand)
+        }
+        for tree in self.trees {
+            print(tree.root.computeUCT())
+        }
     }
 }
 

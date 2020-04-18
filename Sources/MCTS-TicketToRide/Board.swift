@@ -175,10 +175,16 @@ struct City: CustomStringConvertible, Equatable, Hashable {
     }
 }
 
-class Track: CustomStringConvertible, Equatable {
+class Track: CustomStringConvertible, Equatable, Hashable {
     private(set) var endpoints: [City]
     private(set) var color: Color
     private(set) var length: Int
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(length)
+        hasher.combine(endpoints)
+        hasher.combine(color)
+    }
     
     init(_ a: City, _ b: City, color: Color, length: Int) {
         self.endpoints = [a,b]

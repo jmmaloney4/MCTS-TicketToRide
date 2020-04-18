@@ -9,7 +9,7 @@ import Foundation
 import Squall
 
 func newGust() -> Gust {
-    return Gust(seed: UInt32(Date.init(timeIntervalSinceNow: 0).hashValue))
+    return Gust(seed: UInt32(abs(Date.init(timeIntervalSinceNow: 0).hashValue) / Int(UInt32.max)))
 }
 
 struct Deck {

@@ -15,4 +15,6 @@ public enum TTRError: Error {
     case dataError
     case incosistentAdjacencyMatrix
     case invalidTrackLength
+    case invalidAction
+    case childAlreadyExists
 }
