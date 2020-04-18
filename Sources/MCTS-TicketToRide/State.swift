@@ -55,28 +55,38 @@ class MCTSNode {
     }
     
     // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
-    func computeUCT() -> [Double] {
+    func computeUCT() -> [TurnAction:Double] {
         self.countVisited += 1
         
-        var rv: [Double] = []
+        var rv: [TurnAction:Double] = [:]
         let moves = state.getLegalMoves()
         print(moves)
         let expected = Double(self.countWon) / Double(self.countVisited)
         for move in moves {
             var explore: Double
-            if let child = getChild(asResultOf: move) {
+            if let child = self.children[move] {
                 explore = sqrt(log(Double(self.countVisited)) / Double(child.countVisited))
             } else {
                 explore = 1
             }
             let uct = expected + Rules.uctExplorationConstant * explore
-            rv.append(uct)
+            rv[move] = uct
         }
         return rv
     }
     
-    func getChild(asResultOf action: TurnAction) -> MCTSNode? {
-        return self.children[action]
+    func maxUCT() -> TurnAction {
+        let uct = computeUCT()
+        guard let max = uct.values.max() else { fatalError() }
+        return uct.enumerated().first(where: { element -> Bool in element.element.value == max })!.element.key
+    }
+    
+    func uct() throws -> MCTSNode {
+        let action = maxUCT()
+        if self.children[action] != nil {
+            return try self.children[action]!.uct()
+        }
+        return try MCTSNode(asResultOf: action, parent: self)
     }
 }
 
@@ -158,12 +168,12 @@ enum TurnAction: Hashable {
 }
 
 class Game {
-    var board: Board
-    var players: [Player]
-    var trees: [MCTSTree] = []
-    var state: State!
+    private(set) var board: Board
+    private(set) var players: [Player]
+    private var trees: [MCTSTree] = []
+    private(set) var state: State!
     
-    init(board: Board, deck:Deck, players: Player...) {
+    init(board: Board, deck:Deck, players: Player...) throws {
         self.board = board
         self.players = players
         self.state = State(asRootOf: self, withDeck: deck)
@@ -172,12 +182,15 @@ class Game {
             self.trees.append(MCTSTree(self.state))
         }
         
-        self.start()
+        try self.start()
     }
     
-    func start() {
+    func start() throws {
         for p in state.players {
             print(p.hand)
+        }
+        for (k, p) in players.enumerated() {
+            print(try p.takeTurn(tree: trees[k], game: self))
         }
         for tree in self.trees {
             print(tree.root.computeUCT())
@@ -186,11 +199,11 @@ class Game {
 }
 
 protocol Player {
-    func takeTurn() -> TurnAction
+    func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction
 }
 
 class MCTSAIPlayerInterface: Player {
-    func takeTurn() -> TurnAction {
-        return .draw
+    func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
+        return tree.root.maxUCT()
     }
 }
