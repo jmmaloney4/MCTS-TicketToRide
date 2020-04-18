@@ -26,83 +26,6 @@ struct PlayerState {
     }
 }
 
-class MCTSTree {
-    private(set) var root: MCTSNode
-    
-    init(_ state: State) {
-        self.root = MCTSNode(withState: state)
-    }
-    
-    func runSimulation(rng: Gust) throws {
-        let exit = try self.root.uct()
-        
-        var state: State = exit.state
-        while !state.gameOver {
-            let moves = state.getLegalMoves()
-            let move = moves[Int(rng.next()) % moves.count]
-            state = state.asResultOfAction(move)!
-        }
-        
-        
-    }
-}
-
-class MCTSNode {
-    private(set) var children: [TurnAction:MCTSNode] = [:]
-    private(set) var state: State
-    
-    private(set) var countVisited: Int = 0
-    private(set) var countWon: Int = 0
-    
-    init(withState state: State) {
-        self.state = state
-    }
-    
-    init(asResultOf action: TurnAction, parent: MCTSNode) throws {
-        if parent.children[action] != nil { throw TTRError.childAlreadyExists }
-        guard let state = parent.state.asResultOfAction(action) else {
-            throw TTRError.invalidAction
-        }
-        self.state = state
-        parent.children[action] = self
-    }
-    
-    // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
-    func computeUCT() -> [TurnAction:Double] {
-        self.countVisited += 1
-        
-        var rv: [TurnAction:Double] = [:]
-        let moves = state.getLegalMoves()
-        print(moves)
-        let expected = Double(self.countWon) / Double(self.countVisited)
-        for move in moves {
-            var explore: Double
-            if let child = self.children[move] {
-                explore = sqrt(log(Double(self.countVisited)) / Double(child.countVisited))
-            } else {
-                explore = 1
-            }
-            let uct = expected + Rules.uctExplorationConstant * explore
-            rv[move] = uct
-        }
-        return rv
-    }
-    
-    func maxUCT() -> TurnAction {
-        let uct = computeUCT()
-        guard let max = uct.values.max() else { fatalError() }
-        return uct.enumerated().first(where: { element -> Bool in element.element.value == max })!.element.key
-    }
-    
-    func uct() throws -> MCTSNode {
-        let action = maxUCT()
-        if self.children[action] != nil {
-            return try self.children[action]!.uct()
-        }
-        return try MCTSNode(asResultOf: action, parent: self)
-    }
-}
-
 struct State {
     private(set) var game: Game
     private(set) var deck: Deck
@@ -199,43 +122,11 @@ struct State {
     }
     
     func calculateWinner() -> Int {
-        
-    }
-}
-
-enum TurnAction: Hashable {
-    case draw
-    case build(Track)
-}
-
-class Game {
-    private(set) var board: Board
-    private(set) var players: [Player]
-    private var trees: [MCTSTree] = []
-    private(set) var state: State!
-    
-    init(board: Board, deck:Deck, players: Player...) throws {
-        self.board = board
-        self.players = players
-        self.state = State(asRootOf: self, withDeck: deck)
-        
-        for _ in 0..<players.count {
-            self.trees.append(MCTSTree(self.state))
+        var points: [Int] = Array(repeating: 0, count: self.players.count)
+        for (k, p) in self.players.enumerated() {
+            points[k] += p.tracksOwned.reduce(0, { $0 + $1.points()! })
         }
-        
-        try self.start()
-    }
-    
-    func start() throws {
-        for p in state.players {
-            print(p.hand)
-        }
-        for (k, p) in players.enumerated() {
-            print(try p.takeTurn(tree: trees[k], game: self))
-        }
-        for tree in self.trees {
-            print(tree.root.computeUCT())
-        }
+        return points.firstIndex(of: points.max()!)!
     }
 }
 
@@ -245,8 +136,10 @@ protocol Player {
 
 class MCTSAIPlayerInterface: Player {
     func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
-        
-        
+        let rng = newGust()
+        for k in 0..<10 {
+            try tree.runSimulation(rng: rng)
+        }
         return tree.root.maxUCT()
     }
 }

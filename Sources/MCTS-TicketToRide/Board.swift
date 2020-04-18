@@ -104,7 +104,7 @@ class Board: CustomStringConvertible {
     func allTracks() -> [Track] {
         var rv: [Track] = []
         for (i, city) in cities.enumerated() {
-            for (k, entry) in matrix[i].enumerated() {
+            for (k, entry) in matrix[i].enumerated() where k < i {
                 if entry != nil {
                     for color in entry!.colors {
                         rv.append(Track(city, cities[k], color: color, length: entry!.length))
@@ -199,5 +199,17 @@ class Track: CustomStringConvertible, Equatable, Hashable {
     static func == (lhs: Track, rhs: Track) -> Bool {
         return Set(lhs.endpoints) == Set(rhs.endpoints)
             && lhs.color == rhs.color && lhs.length == rhs.length
+    }
+    
+    func points() -> Int? {
+        switch length {
+        case 1: return 1
+        case 2: return 2
+        case 3: return 4
+        case 4: return 7
+        case 6: return 15
+        case 8: return 21
+        default: return nil
+        }
     }
 }
