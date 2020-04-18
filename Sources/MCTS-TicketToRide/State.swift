@@ -32,6 +32,19 @@ class MCTSTree {
     init(_ state: State) {
         self.root = MCTSNode(withState: state)
     }
+    
+    func runSimulation(rng: Gust) throws {
+        let exit = try self.root.uct()
+        
+        var state: State = exit.state
+        while !state.gameOver {
+            let moves = state.getLegalMoves()
+            let move = moves[Int(rng.next()) % moves.count]
+            state = state.asResultOfAction(move)!
+        }
+        
+        
+    }
 }
 
 class MCTSNode {
@@ -96,6 +109,10 @@ struct State {
     private(set) var players: [PlayerState] = []
     private(set) var turn: Int = 0
     
+    private(set) var lastPlayer: Int? = nil
+    var lastRound: Bool { return self.lastPlayer != nil }
+    var gameOver: Bool { return lastRound && self.lastTurn() == lastPlayer }
+    
     init(asRootOf game: Game, withDeck deck: Deck) {
         self.game = game
         self.deck = deck
@@ -119,6 +136,7 @@ struct State {
     
     private func tracksBuildable(ByPlayer p: Int) -> [Track] {
         return self.unownedTracks().filter({
+            guard $0.length <= self.players[p].traincars else { return false }
             switch $0.color {
             case .unspecified: return $0.length <= self.players[p].hand.maxColorCount().1
             default: return $0.length <= self.players[p].hand.cardsOf($0.color)
@@ -134,12 +152,36 @@ struct State {
         return rv
     }
     
+    func nextTurn() -> Int {
+        if self.turn == players.count - 1 {
+            return 0
+        } else {
+            return self.turn + 1
+        }
+    }
+    
+    func lastTurn() -> Int {
+        if self.turn == 0 {
+            return players.count - 1
+        } else {
+            return self.turn - 1
+        }
+    }
+    
     func asResultOfAction(_ action: TurnAction) -> State? {
         var rv = self
         switch action {
         case .draw:
             _ = rv.players[turn].hand.addCard(rv.deck.draw())
         case .build(let track):
+            guard track.length <= rv.players[turn].traincars else {
+                return nil
+            }
+            rv.players[turn].traincars -= track.length
+            if rv.players[turn].traincars <= Rules.traincarCutoff {
+                rv.lastPlayer = rv.lastTurn()
+            }
+            
             switch track.color {
             case .unspecified:
                 guard rv.players[turn].hand.playCards(count: track.length) != nil else {
@@ -152,13 +194,12 @@ struct State {
             }
         }
         
-        if self.turn < players.count - 1 {
-            rv.turn += 1
-        } else {
-            rv.turn = 0
-        }
-        
+        rv.turn = rv.nextTurn()
         return rv
+    }
+    
+    func calculateWinner() -> Int {
+        
     }
 }
 
@@ -204,6 +245,8 @@ protocol Player {
 
 class MCTSAIPlayerInterface: Player {
     func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
+        
+        
         return tree.root.maxUCT()
     }
 }
