@@ -1,0 +1,74 @@
+\title{Monte Carlo Tree Search Applied to \textit{Ticket to Ride}}
+\author{Jack Maloney\footnote{University of Minnesota, College of Science and Engineering, Class of 2023}}
+\date{}
+\documentclass[11pt, letterpaper, twoside]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{fullpage}
+
+\usepackage{setspace}
+\singlespacing
+
+% No Page Number
+\pagenumbering{gobble}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Monte Carlo Tree Search (MCTS) \cite{mcts_inaugural} is an anytime algorithm for efficient decision making in large state spaces, or for domains with incomplete or stochastic information, and many other places. Since its inception, MCTS has received a huge amount of attention from the AI community, because of its success tackling problems which have been intractable with other forms of heuristic search for decades. Most notable of these successes is AlphaGo's \cite{alphago} 2016 triumph over Lee Sedol. Sedol was an 18-time Go world champion when he was defeated. The technique has since been applied to many other games, including Chess, Shogi \cite{chess_shogi_self_play}, Settlers of Catan \cite{mcts_settlers}, Poker, and Total War: Rome II. Many variations to the technique have appeared to handle different resource limitations, and different levels of state observability. In the following sections we outline some of these developments and their applicability and implications for our study on Ticket to Ride.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{Refrences/MCTS_Phases.png}
+  \caption{Outline of Monte Carlo Tree Search \cite{mcts_survey}.}
+  \label{fig:mcts_outline}
+\end{figure}
+
+\section{Overview of Monte Carlo Tree Search}
+
+Monte Carlo Tree Search operates on a tree of possible future game states, which are reachable from legal actions. MCTS differs from other complete heuristic searches (A*, IDS, etc) by sampling various paths through the tree, instead of searching the entire tree. A decision is then made based on the average payoffs of each decision.
+ 
+The algorithm \cite{mcts_inaugural} begins with just a root node, and subsequently adds one leaf node for each cycle of the algorithm. A cycle consists of four phases: Selection, Expansion, Simulation, and Backpropagation.
+
+In the Selection phase, an existing node is chosen as the starting point for a simulation. The selected node must have one child node which may be reached by a legal move, but is not currently in the tree. The selection criteria must balance the cost of exploring new nodes and exploiting nodes which are already know to perform relatively well. This is not an easy task due to the inherent uncertianty of MCTS, especially when the number of simulations is low.
+
+In the Expansion phase, one or more new child nodes are added to the tree, based on the legal actions available to the player at the selected node.
+
+In the Simulation, or Play-Out, phase, the algorithm assumes uses a default strategy for itself and all opponents, and executes self-play until the game terminates. The choice of default strategy is an important one, as it must generate reasonably accurate result, yet not abuse valuable computing resources.
+
+In the Backpropagation phase, the statistics of the nodes in the tree are updated based on the outcome out the simulated game. Depending on the format of the game, this could be simply win/loss, the number of points scored, or some other metric of performance. It is an important feature that the backpropagation happens in every cycle of the algorithm, as it accounts for the algorithm's anytime behavior. Because the statistics in the tree are always up to date, the algorithm may be stopped at any point when a resource limit has been reached. It also offers the potential for realtime applications, however, those will not be discussed here further. 
+
+The description above is intentionally broad and brief. Specific areas of interest,  contributions thereof by existing literature, and implications for our project will be discussed in the next sections.
+
+\subsection{Selection}
+
+\begin{figure}
+\begin{center}
+  \includegraphics[scale=0.45]{Refrences/Asymmetric_Tree_Growth.png}
+  \caption{Asymmetric Tree Growth \cite{mcts_survey}.}
+  \label{fig:asymmetric}
+ \end{center}
+\end{figure}
+
+The selection phase is one of the most important, because it determines the search's ability to find the global optimum solution, without wasting valuable computing resources on paths which are unlikely to yield benefits. The selection process leads to asymmetric tree growth (See Figure \ref{fig:asymmetric}). This is arguably the greatest feature of MCTS, and the one which allows it to handle such large search spaces. The ability of MCTS to select promising nodes to continue searching from allows it to discount many of the paths early in the search, and remarkably cut down the size of the search space.
+
+The effectiveness of node selection is determined by the selection strategy. One of the most common selection strategies is called UCT \cite{bandit_algorithms} (Upper Confidence Bound applied to Trees). This strategy picks, from the set of nodes immediately reachable nodes, $i \in I$, which are children of the current node $p$, the node which maximizes the following formula
+\begin{equation}
+	UCT(i)= \bar{X_i} + 2C \sqrt{\frac{2\ln{n_p}}{n_i}},
+\end{equation}
+	where $\bar{X_i}$ is the expected payoff of child $i$; $n_p$ is the number of times the parent node, $p$, has been visited; $n_i$ is the number of times the child node $i$ has been visited. $C > 0$ is a constant which controls the algorithm's tendency for exploration vs exploitation.
+
+\subsection{Simulation}
+	The simulation phase constitutes the majority of the algorithm. After a node has been selected, the game is played out from that state via a default strategy until the end. The most important consideration of this phase is the strategy used to approximate the actions of the friendly player and the opposing player(s). Ideally, this strategy will be a fairly accurate representation of the way an actual game will proceed, however, it ought to be a very computationally inexpensive strategy, as otherwise the computational resource limit will be reached before many paths have been explored. The approach typically used in the literature \cite{mcts_settlers} \cite{mmcts} is either a uniformly random strategy, or a simple weighted distribution based on a simple heuristic such as belief sampling \cite{belief_sampling} \cite{large_belief_states}. The random sampling may not immediately seem like a useful strategy, however, because of its speed, it allows a greater number of simulations to be run with the same computational resources, which is ultimately the most important factor in the success of MCTS.
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\end{document}
