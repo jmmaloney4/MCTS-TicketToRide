@@ -7,6 +7,7 @@
 
 import Foundation
 import Squall
+import Dispatch
 
 struct PlayerState {
     var hand: Hand
@@ -139,8 +140,9 @@ protocol Player {
 class MCTSAIPlayerInterface: Player {
     func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
         let rng = newGust()
-        for _ in 0..<500 {
+        for k in 0..<10 {
             try tree.runSimulation(rng: rng)
+            print(k)
         }
         return tree.pickMove()
     }

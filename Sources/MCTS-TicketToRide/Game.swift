@@ -33,13 +33,12 @@ class Game {
     func start() throws {
         while !self.state.gameOver {
             var action = try self.players[self.state.turn].takeTurn(tree: trees[self.state.turn], game: self)
-            print(action, self.state.turn)
             (action, self.state) = self.state.asResultOfAction(action)
-            print(action)
+            print("Player \(self.state.turn): \(action)")
             guard state != nil else { fatalError() }
             for tree in trees {
                 try tree.updateRoot(action)
-                print(tree.root.state.turn)
+                // print(tree.root.state.turn)
             }
         }
         print("Winner: \(self.state.calculateWinner())")
