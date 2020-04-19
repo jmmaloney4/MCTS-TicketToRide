@@ -8,7 +8,7 @@
 import Foundation
 
 enum TurnAction: Hashable {
-    case draw
+    case draw(Color)
     case build(Track)
 }
 
@@ -32,13 +32,16 @@ class Game {
     
     func start() throws {
         while !self.state.gameOver {
-            let action = try self.players[self.state.turn].takeTurn(tree: trees[self.state.turn], game: self)
-            self.state = self.state.asResultOfAction(action)
+            var action = try self.players[self.state.turn].takeTurn(tree: trees[self.state.turn], game: self)
+            print(action, self.state.turn)
+            (action, self.state) = self.state.asResultOfAction(action)
+            print(action)
             guard state != nil else { fatalError() }
             for tree in trees {
                 try tree.updateRoot(action)
                 print(tree.root.state.turn)
             }
         }
+        print("Winner: \(self.state.calculateWinner())")
     }
 }

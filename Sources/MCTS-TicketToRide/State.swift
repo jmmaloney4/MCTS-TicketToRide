@@ -68,7 +68,7 @@ struct State {
     }
     
     func getLegalMoves() -> [TurnAction] {
-        var rv: [TurnAction] = [.draw]
+        var rv: [TurnAction] = [.draw(.unspecified)]
         for track in tracksBuildable(ByPlayer: turn) {
             rv.append(.build(track))
         }
@@ -91,19 +91,19 @@ struct State {
         }
     }
     
-    func asResultOfAction(_ action: TurnAction) -> State {
+    func asResultOfAction(_ action: TurnAction) -> (TurnAction, State) {
         var rv = self
+        var rva: TurnAction
         switch action {
-        case .draw:
-            _ = rv.players[turn].hand.addCard(rv.deck.draw())
+        case .draw(var color):
+            if color == .unspecified { color = rv.deck.draw() }
+            _ = rv.players[turn].hand.addCard(color)
+            rva = .draw(color)
         case .build(let track):
-            guard track.length <= rv.players[turn].traincars else {
-                fatalError()
-            }
+            rva = .build(track)
+            guard track.length <= rv.players[turn].traincars else { fatalError() }
             rv.players[turn].traincars -= track.length
-            if rv.players[turn].traincars <= Rules.traincarCutoff {
-                rv.lastPlayer = rv.lastTurn()
-            }
+            if rv.players[turn].traincars <= Rules.traincarCutoff { rv.lastPlayer = rv.lastTurn() }
             
             switch track.color {
             case .unspecified:
@@ -115,10 +115,12 @@ struct State {
                     fatalError()
                 }
             }
+            
+            rv.players[turn].tracksOwned.append(track)
         }
         
         rv.turn = rv.nextTurn()
-        return rv
+        return (rva, rv)
     }
     
     func calculateWinner() -> Int {
@@ -137,7 +139,7 @@ protocol Player {
 class MCTSAIPlayerInterface: Player {
     func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
         let rng = newGust()
-        for _ in 0..<10 {
+        for _ in 0..<500 {
             try tree.runSimulation(rng: rng)
         }
         return tree.pickMove()

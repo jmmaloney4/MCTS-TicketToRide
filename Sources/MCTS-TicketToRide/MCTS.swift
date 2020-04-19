@@ -18,34 +18,11 @@ class MCTSTree {
     }
     
     func runSimulation(rng: Gust) throws {
-        let exit = try self.root.uct()
-        
-        var state: State = exit.state
-        while !state.gameOver {
-            let moves = state.getLegalMoves()
-            let move = moves[Int(rng.next() / UInt64(UInt32.max)) % moves.count]
-            state = state.asResultOfAction(move)
-        }
-        
-        let winner = state.calculateWinner()
-        self.update(withWinner: winner)
-    }
-    
-    func update(withWinner winner: Int) {
-        var parent: MCTSNode = self.root
-        var next: MCTSNode? = self.root.children[self.root.maxUCT()]
-        while next != nil {
-            parent.countVisited += 1
-            if winner == self.player {
-                parent.countWon += 1
-            }
-            parent = next!
-            next = next!.children[next!.maxUCT()]
-        }
+        _ = try self.root.simulate(rng: rng, player: self.player)
     }
     
     func pickMove() -> TurnAction {
-        let values = self.root.children.values.map({ Double($0.countWon) / Double($0.countVisited) })
+        let values = self.root.children.values.filter({ $0.countVisited > 0 }).map({ Double($0.countWon) / Double($0.countVisited) })
         let index: Int = values.firstIndex(of: values.max()!)!
         return Array(self.root.children.keys)[index]
     }
@@ -71,9 +48,9 @@ class MCTSNode {
     }
     
     init(asResultOf action: TurnAction, parent: MCTSNode) throws {
+        var action = action
         if parent.children[action] != nil { throw TTRError.childAlreadyExists }
-        let state = parent.state.asResultOfAction(action)
-        self.state = state
+        (action, self.state) = parent.state.asResultOfAction(action)
         parent.children[action] = self
     }
     
@@ -81,19 +58,29 @@ class MCTSNode {
     func computeUCT() -> [TurnAction:Double] {
         var rv: [TurnAction:Double] = [:]
         let moves = state.getLegalMoves()
-        var expected: Double
-        if self.countVisited == 0 {
-            expected = sqrt(2) // sqrt?
-        } else {
-            expected = Double(self.countWon) / Double(self.countVisited)
-        }
         for move in moves {
+            var expected: Double
             var explore: Double
-            if let child = self.children[move], child.countVisited > 0 {
-                explore = sqrt(log(Double(self.countVisited + 1)) / Double(child.countVisited))
+            var stats: (won: Int, visited: Int)?
+            switch move {
+            case .draw:
+                stats = self.children
+                    .filter({ switch $0.key { case .draw: return true; default: return false; } })
+                    .reduce((0, 0), { return ($0.0 + $1.value.countWon, $0.1 + $1.value.countVisited) })
+            default:
+                if let child = self.children[move] {
+                    stats = (child.countWon, child.countVisited)
+                }
+            }
+            
+            if stats != nil, stats!.visited > 0 {
+                expected = Double(stats!.0) / Double(stats!.1)
+                explore = sqrt(log(Double(self.countVisited + 1)) / Double(stats!.1))
             } else {
+                expected = sqrt(2)
                 explore = 1
             }
+            
             let uct = expected + (Rules.uctExplorationConstant * explore)
             if uct.isNaN { fatalError() }
             rv[move] = uct
@@ -113,7 +100,32 @@ class MCTSNode {
             return try self.children[action]!.uct()
         }
         let rv = try MCTSNode(asResultOf: action, parent: self)
-        guard self.children[action] === rv else { fatalError() }
+        // guard self.children[action] === rv else { fatalError() }
         return rv
+    }
+    
+    func simulate(rng: Gust, player: Int) throws -> Int {
+        let action = maxUCT()
+        var winner: Int
+        if self.children[action] != nil {
+            winner = try self.children[action]!.simulate(rng: rng, player: player)
+        } else {
+            let child = try MCTSNode(asResultOf: action, parent: self)
+            var state: State = child.state
+            while !state.gameOver {
+                let moves = state.getLegalMoves()
+                let move = moves[Int(rng.next() / UInt64(UInt32.max)) % moves.count]
+                (_, state) = state.asResultOfAction(move)
+            }
+            winner = state.calculateWinner()
+            
+            child.countVisited += 1
+            if winner == player { child.countWon += 1 }
+        }
+        
+        self.countVisited += 1
+        if winner == player { self.countWon += 1 }
+        
+        return winner
     }
 }
