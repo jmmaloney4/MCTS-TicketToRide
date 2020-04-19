@@ -31,14 +31,14 @@ class Game {
     }
     
     func start() throws {
-        for p in state.players {
-            print(p.hand)
-        }
-        for (k, p) in players.enumerated() {
-            print(try p.takeTurn(tree: trees[k], game: self))
-        }
-        for tree in self.trees {
-            print(tree.root.computeUCT())
+        while !self.state.gameOver {
+            let action = try self.players[self.state.turn].takeTurn(tree: trees[self.state.turn], game: self)
+            self.state = self.state.asResultOfAction(action)
+            guard state != nil else { fatalError() }
+            for tree in trees {
+                try tree.updateRoot(action)
+                print(tree.root.state.turn)
+            }
         }
     }
 }

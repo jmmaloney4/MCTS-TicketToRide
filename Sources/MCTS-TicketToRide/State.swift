@@ -91,14 +91,14 @@ struct State {
         }
     }
     
-    func asResultOfAction(_ action: TurnAction) -> State? {
+    func asResultOfAction(_ action: TurnAction) -> State {
         var rv = self
         switch action {
         case .draw:
             _ = rv.players[turn].hand.addCard(rv.deck.draw())
         case .build(let track):
             guard track.length <= rv.players[turn].traincars else {
-                return nil
+                fatalError()
             }
             rv.players[turn].traincars -= track.length
             if rv.players[turn].traincars <= Rules.traincarCutoff {
@@ -108,11 +108,11 @@ struct State {
             switch track.color {
             case .unspecified:
                 guard rv.players[turn].hand.playCards(count: track.length) != nil else {
-                    return nil
+                    fatalError()
                 }
             default:
                 guard rv.players[turn].hand.playCards(track.color, count: track.length) != nil else {
-                    return nil
+                    fatalError()
                 }
             }
         }
@@ -137,9 +137,9 @@ protocol Player {
 class MCTSAIPlayerInterface: Player {
     func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
         let rng = newGust()
-        for k in 0..<100 {
+        for _ in 0..<10 {
             try tree.runSimulation(rng: rng)
         }
-        return tree.root.maxUCT()
+        return tree.pickMove()
     }
 }

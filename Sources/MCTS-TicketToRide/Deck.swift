@@ -91,6 +91,7 @@ struct Hand {
         }
         let color = tmp!
         
+        print(color, count, self.cards[color])
         if self.cards[color] != nil && self.cards[color]! >= count {
             self.cards[color]! -= count
             return (self.cards[color]!, color)

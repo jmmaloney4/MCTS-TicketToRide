@@ -24,8 +24,7 @@ class MCTSTree {
         while !state.gameOver {
             let moves = state.getLegalMoves()
             let move = moves[Int(rng.next() / UInt64(UInt32.max)) % moves.count]
-            print(move)
-            state = state.asResultOfAction(move)!
+            state = state.asResultOfAction(move)
         }
         
         let winner = state.calculateWinner()
@@ -44,6 +43,20 @@ class MCTSTree {
             next = next!.children[next!.maxUCT()]
         }
     }
+    
+    func pickMove() -> TurnAction {
+        let values = self.root.children.values.map({ Double($0.countWon) / Double($0.countVisited) })
+        let index: Int = values.firstIndex(of: values.max()!)!
+        return Array(self.root.children.keys)[index]
+    }
+    
+    func updateRoot(_ action: TurnAction) throws {
+        if let root = self.root.children[action] {
+            self.root = root
+        } else {
+            self.root = try MCTSNode(asResultOf: action, parent: self.root)
+        }
+    }
 }
 
 class MCTSNode {
@@ -59,9 +72,7 @@ class MCTSNode {
     
     init(asResultOf action: TurnAction, parent: MCTSNode) throws {
         if parent.children[action] != nil { throw TTRError.childAlreadyExists }
-        guard let state = parent.state.asResultOfAction(action) else {
-            throw TTRError.invalidAction
-        }
+        let state = parent.state.asResultOfAction(action)
         self.state = state
         parent.children[action] = self
     }
@@ -70,7 +81,6 @@ class MCTSNode {
     func computeUCT() -> [TurnAction:Double] {
         var rv: [TurnAction:Double] = [:]
         let moves = state.getLegalMoves()
-        print(moves)
         var expected: Double
         if self.countVisited == 0 {
             expected = sqrt(2) // sqrt?
@@ -93,9 +103,7 @@ class MCTSNode {
     
     func maxUCT() -> TurnAction {
         let uct = computeUCT()
-        print(uct)
         guard let max = uct.values.max() else { fatalError() }
-        print(max)
         return uct.enumerated().first(where: { element -> Bool in element.element.value == max })!.element.key
     }
     

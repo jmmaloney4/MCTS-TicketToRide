@@ -12,6 +12,5 @@ struct Rules {
     static var initialTraincarCount = 45    // Eurpoe Rules: 45
     static var traincarCutoff = 2
     
-    
     static var uctExplorationConstant = sqrt(2)
 }
