@@ -12,35 +12,56 @@ enum TurnAction: Hashable {
     case build(Track)
 }
 
+enum PlayerType {
+    case mcts
+    case random
+}
+
+protocol Player {
+    func takeTurn(game: Game) throws -> TurnAction
+    func update(game: Game, player: Int, action: TurnAction) throws
+}
+
+extension Player {
+    var type: PlayerType {
+        if self is MCTSAIPlayerInterface { return .mcts }
+        else if self is RandomAIPlayerInterface { return .random }
+        else { fatalError() }
+    }
+}
+
 class Game {
     private(set) var board: Board
-    private(set) var players: [Player]
-    private var trees: [MCTSTree] = []
+    private(set) var players: [Player]!
+//    private var trees: [MCTSTree] = []
     private(set) var state: State!
     
-    init(board: Board, deck:Deck, players: Player...) throws {
+    init(board: Board, deck:Deck, players: PlayerType...) throws {
         self.board = board
-        self.players = players
-        self.state = State(asRootOf: self, withDeck: deck)
+        self.state = State(asRootOf: self, withDeck: deck, playerCount: players.count)
         
-        for k in 0..<players.count {
-            self.trees.append(MCTSTree(self.state, forPlayer: k))
-        }
+        self.players = players.enumerated().map({
+            let p = $0.offset
+            switch $0.element {
+            case .mcts: return MCTSAIPlayerInterface(state: state, player: p)
+            case .random: return RandomAIPlayerInterface(state: state, player: p)
+            }
+        })
         
         try self.start()
     }
     
     func start() throws {
         while !self.state.gameOver {
-            var action = try self.players[self.state.turn].takeTurn(tree: trees[self.state.turn], game: self)
-            (action, self.state) = self.state.asResultOfAction(action)
-            print("Player \(self.state.turn): \(action)")
-            guard state != nil else { fatalError() }
-            for tree in trees {
-                try tree.updateRoot(action)
+            let (action, state) = self.state.asResultOfAction( try self.players[self.state.turn].takeTurn(game: self))
+            print("Player (\(self.players[self.state.turn].type) \(self.state.turn): \(action)")
+            for p in players {
+                try p.update(game: self, player: self.state.lastTurn(), action: action)
                 // print(tree.root.state.turn)
             }
+            self.state = state
         }
-        print("Winner: \(self.state.calculateWinner())")
+        let winner = self.state.calculateWinner()
+        print("Winner: \(winner) (\(self.players[winner].type)")
     }
 }

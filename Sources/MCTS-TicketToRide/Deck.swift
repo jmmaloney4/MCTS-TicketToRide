@@ -96,6 +96,10 @@ struct Hand {
             self.cards[color]! -= count
             return (self.cards[color]!, color)
         }
+        
+        print(self)
+        print(color)
+        print(count)
         return nil
     }
 }

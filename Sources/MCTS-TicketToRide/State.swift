@@ -37,10 +37,10 @@ struct State {
     var lastRound: Bool { return self.lastPlayer != nil }
     var gameOver: Bool { return lastRound && self.lastTurn() == lastPlayer }
     
-    init(asRootOf game: Game, withDeck deck: Deck) {
+    init(asRootOf game: Game, withDeck deck: Deck, playerCount: Int) {
         self.game = game
         self.deck = deck
-        for _ in game.players {
+        for _ in 0..<playerCount {
             self.players.append(PlayerState(hand: Hand(deck: self.deck)))
         }
     }
@@ -109,10 +109,12 @@ struct State {
             switch track.color {
             case .unspecified:
                 guard rv.players[turn].hand.playCards(count: track.length) != nil else {
+                    print(track)
                     fatalError()
                 }
             default:
                 guard rv.players[turn].hand.playCards(track.color, count: track.length) != nil else {
+                    print(track)
                     fatalError()
                 }
             }
@@ -133,17 +135,3 @@ struct State {
     }
 }
 
-protocol Player {
-    func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction
-}
-
-class MCTSAIPlayerInterface: Player {
-    func takeTurn(tree: MCTSTree, game: Game) throws -> TurnAction {
-        let rng = newGust()
-        for k in 0..<10 {
-            try tree.runSimulation(rng: rng)
-            print(k)
-        }
-        return tree.pickMove()
-    }
-}

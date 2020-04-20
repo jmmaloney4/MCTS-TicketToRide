@@ -29,7 +29,11 @@ struct MCTS: ParsableCommand {
         print("\(board.tracksBetween(City("Paris"), City("Pamplona"))!)")
         print("\(board.adjacentTracks(City("Paris"))!)")
         
-        let game = try Game(board: board, deck: Deck(), players: MCTSAIPlayerInterface(), MCTSAIPlayerInterface(), MCTSAIPlayerInterface())
+        for i in 0...20 {
+            let game = try Game(board: board, deck: Deck(), players: .random, .random, .mcts)
+        }
+        
+        
     }
 }
 

@@ -8,6 +8,28 @@
 import Foundation
 import Squall
 
+class MCTSAIPlayerInterface: Player {
+    var tree: MCTSTree
+    var player: Int
+    
+    init(state: State, player: Int) {
+        self.tree = MCTSTree(state, forPlayer: player)
+        self.player = player
+    }
+    
+    func takeTurn(game: Game) throws -> TurnAction {
+        let rng = newGust()
+        for k in 0..<Rules.mctsIterations {
+            try self.tree.runSimulation(rng: rng)
+        }
+        return self.tree.pickMove()
+    }
+    
+    func update(game: Game, player: Int, action: TurnAction) throws {
+        try self.tree.updateRoot(action)
+    }
+}
+
 class MCTSTree {
     private(set) var root: MCTSNode
     private(set) var player: Int
@@ -128,4 +150,24 @@ class MCTSNode {
         
         return winner
     }
+}
+
+
+class RandomAIPlayerInterface: Player {
+    var player: Int
+    var rng: Gust = newGust()
+    
+    init(state: State, player: Int) {
+        self.player = player
+    }
+    
+    func takeTurn(game: Game) throws -> TurnAction {
+        let moves = game.state.getLegalMoves()
+        return moves[Int(rng.next(upperBound: UInt(moves.count)))]
+    }
+    
+    func update(game: Game, player: Int, action: TurnAction) {
+        
+    }
+    
 }
