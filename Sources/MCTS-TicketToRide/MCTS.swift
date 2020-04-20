@@ -28,7 +28,7 @@ class MCTSAIPlayerInterface: Player {
     func takeTurn(game: Game) throws -> TurnAction {
         let latch = CountDownLatch(count: Rules.mctsIterations)
         for k in 0..<Rules.mctsIterations {
-            DispatchQueue.global(qos: .default).sync {
+            DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
                 print(k)
                 try! self.tree.runSimulation(rng: &rng)

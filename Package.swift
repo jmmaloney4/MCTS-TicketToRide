@@ -11,7 +11,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/jmmaloney4/Squall.git", from: "1.2.3"),
+        .package(url: "https://github.com/jmmaloney4/Squall.git", .branch("master")),
         .package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),
         .package(url: "https://github.com/kylef/PathKit.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.0.1")),

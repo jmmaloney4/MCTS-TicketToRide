@@ -22,6 +22,15 @@ struct MCTS: ParsableCommand {
     
     @Argument(help: "Path to map file")
     var path: String
+    
+    @Argument(help: "Traincars")
+    var traincars: Int
+    
+    @Argument(help: "MCTS Iterations")
+    var iterations: Int
+    
+    @Argument(help: "Random Players")
+    var rands: Int
 
     func run() throws {
         let board = try Board(fromFile: Path(path))
@@ -29,10 +38,13 @@ struct MCTS: ParsableCommand {
         print("\(board.tracksBetween(City("Paris"), City("Pamplona"))!)")
         print("\(board.adjacentTracks(City("Paris"))!)")
         
-        for i in 0...20 {
-            let game = try Game(board: board, deck: Deck(), players: .random, .mcts)
-        }
+        Rules.initialTraincarCount = traincars
+        Rules.mctsIterations = iterations
         
+        var p = Array(repeating: PlayerType.random, count: rands)
+        p.append(.mcts)
+        
+        let game = try Game(board: board, deck: Deck(), players: p)
         
     }
 }

@@ -23,9 +23,9 @@
         "package": "Squall",
         "repositoryURL": "https://github.com/jmmaloney4/Squall.git",
         "state": {
-          "branch": null,
-          "revision": "db88609d974781b0930069cdf08c005f752a0431",
-          "version": "1.3.1"
+          "branch": "master",
+          "revision": "f61fd870b4bdcb502e52827a70688306d5b15b11",
+          "version": null
         }
       },
       {

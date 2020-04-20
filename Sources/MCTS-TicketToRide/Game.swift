@@ -36,7 +36,7 @@ class Game {
 //    private var trees: [MCTSTree] = []
     private(set) var state: State!
     
-    init(board: Board, deck:Deck, players: PlayerType...) throws {
+    init(board: Board, deck:Deck, players: [PlayerType]) throws {
         self.board = board
         self.state = State(asRootOf: self, withDeck: deck, playerCount: players.count)
         
