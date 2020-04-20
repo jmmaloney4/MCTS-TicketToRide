@@ -9,11 +9,6 @@ import Foundation
 import Squall
 import Concurrency
 
-func newGust(_ offset: Int = 0) -> Gust {
-    //return Gust(seed: UInt32(abs(Date.init(timeIntervalSinceNow: 0).hashValue) / Int(UInt32.max)) + UInt32(offset))
-    return Gust(offset: UInt32(offset))
-}
-
 class Deck {
     // Gust is a class type, which is what we want, that way the deck is
     // random each time we draw it, rather than giving the same color every time a state is queried.

@@ -8,6 +8,7 @@
 import Foundation
 import Squall
 import Dispatch
+import Concurrency
 
 struct PlayerState {
     var hand: Hand
@@ -30,16 +31,18 @@ struct PlayerState {
 struct State {
     private(set) var game: Game
     private(set) var deck: Deck
-    private(set) var players: [PlayerState] = []
-    private(set) var turn: Int = 0
+    private(set) var players: [PlayerState]
+    private var turn: Int
     
     private(set) var lastPlayer: Int? = nil
     var lastRound: Bool { return self.lastPlayer != nil }
-    var gameOver: Bool { return lastRound && self.lastTurn() == lastPlayer }
+    var gameOver: Bool { return lastRound && self.previousPlayer() == lastPlayer }
     
     init(asRootOf game: Game, withDeck deck: Deck, playerCount: Int) {
         self.game = game
         self.deck = deck
+        self.turn = 0
+        self.players = []
         for _ in 0..<playerCount {
             self.players.append(PlayerState(hand: Hand(deck: self.deck)))
         }
@@ -58,72 +61,70 @@ struct State {
         return self.game.board.allTracks().filter({ !owned.contains($0) })
     }
     
-    private func tracksBuildable(ByPlayer p: Int) -> [Track] {
+    private func tracksBuildable() -> [Track] {
         return self.unownedTracks().filter({
-            guard $0.length <= self.players[p].traincars else { return false }
+            guard $0.length <= self.players[self.player()].traincars else { return false }
             switch $0.color {
-            case .unspecified: return $0.length <= self.players[p].hand.maxColorCount().1
-            default: return $0.length <= self.players[p].hand.cardsOf($0.color)
+            case .unspecified: return $0.length <= self.players[self.player()].hand.maxColorCount().1
+            default: return $0.length <= self.players[self.player()].hand.cardsOf($0.color)
             }
         })
     }
     
     func getLegalMoves() -> [TurnAction] {
         var rv: [TurnAction] = [.draw(.unspecified)]
-        for track in tracksBuildable(ByPlayer: turn) {
+        for track in tracksBuildable() {
             rv.append(.build(track))
         }
         return rv
     }
     
-    func nextTurn() -> Int {
-        if self.turn == players.count - 1 {
-            return 0
-        } else {
-            return self.turn + 1
-        }
+    func player() -> Int {
+        return self.turn % self.players.count
     }
     
-    func lastTurn() -> Int {
-        if self.turn == 0 {
-            return players.count - 1
-        } else {
-            return self.turn - 1
-        }
+    func nextPlayer() -> Int {
+        return (self.turn + 1) % self.players.count
+    }
+    
+    func previousPlayer() -> Int {
+        return (self.turn - 1) % self.players.count
     }
     
     func asResultOfAction(_ action: TurnAction) -> (TurnAction, State) {
         var rv = self
+        rv.turn += 1
         rv.deck = Deck()
         var rva: TurnAction
         switch action {
         case .draw(var color):
             if color == .unspecified { color = rv.deck.draw() }
-            _ = rv.players[turn].hand.addCard(color)
+            _ = rv.players[self.player()].hand.addCard(color)
             rva = .draw(color)
         case .build(let track):
             rva = .build(track)
-            guard track.length <= rv.players[turn].traincars else { fatalError() }
-            rv.players[turn].traincars -= track.length
-            if rv.players[turn].traincars <= Rules.traincarCutoff { rv.lastPlayer = rv.lastTurn() }
+            guard track.length <= rv.players[self.player()].traincars else { fatalError() }
+            rv.players[self.player()].traincars -= track.length
+            
+            // Set last round if traincars falls beelow cutoff
+            if rv.players[self.player()].traincars <= Rules.traincarCutoff { rv.lastPlayer = rv.previousPlayer() }
             
             switch track.color {
             case .unspecified:
-                guard rv.players[turn].hand.playCards(count: track.length) != nil else {
+                guard rv.players[self.player()].hand.playCards(count: track.length) != nil else {
                     print(track)
                     fatalError()
                 }
             default:
-                guard rv.players[turn].hand.playCards(track.color, count: track.length) != nil else {
+                guard rv.players[self.player()].hand.playCards(track.color, count: track.length) != nil else {
                     print(track)
                     fatalError()
                 }
             }
             
-            rv.players[turn].tracksOwned.append(track)
+            rv.players[self.player()].tracksOwned.append(track)
         }
         
-        rv.turn = rv.nextTurn()
         return (rva, rv)
     }
     

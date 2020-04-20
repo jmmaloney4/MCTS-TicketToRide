@@ -53,10 +53,10 @@ class Game {
     
     func start() throws {
         while !self.state.gameOver {
-            let (action, state) = self.state.asResultOfAction( try self.players[self.state.turn].takeTurn(game: self))
-            print("Player (\(self.players[self.state.turn].type)) \(self.state.turn): \(action)")
+            let (action, state) = self.state.asResultOfAction( try self.players[self.state.player()].takeTurn(game: self))
+            print("Player (\(self.players[self.state.player()].type)) \(self.state.player()): \(action)")
             for p in players {
-                try p.update(game: self, player: self.state.lastTurn(), action: action)
+                try p.update(game: self, player: self.state.player(), action: action)
                 // print(tree.root.state.turn)
             }
             self.state = state
