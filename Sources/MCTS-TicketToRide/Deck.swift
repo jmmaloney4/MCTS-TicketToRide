@@ -7,23 +7,27 @@
 
 import Foundation
 import Squall
+import Concurrency
 
-func newGust() -> Gust {
-    return Gust(seed: UInt32(abs(Date.init(timeIntervalSinceNow: 0).hashValue) / Int(UInt32.max)))
+func newGust(_ offset: Int = 0) -> Gust {
+    //return Gust(seed: UInt32(abs(Date.init(timeIntervalSinceNow: 0).hashValue) / Int(UInt32.max)) + UInt32(offset))
+    return Gust(offset: UInt32(offset))
 }
 
-struct Deck {
+class Deck {
     // Gust is a class type, which is what we want, that way the deck is
     // random each time we draw it, rather than giving the same color every time a state is queried.
-    var rng: Gust = newGust()
+    var rng: RNG
     var colors: [Color]
+    
     
     init(colors: [Color] = Color.simpleCards()) {
         self.colors = colors
+        self.rng = makeRNG()
     }
     
     func draw() -> Color {
-        return self.colors[Int(rng.random() % UInt32(self.colors.count))]
+        return self.colors.randomElement(using: &self.rng)!
     }
     
     func draw(_ count: Int) -> [Color] {

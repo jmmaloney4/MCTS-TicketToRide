@@ -45,12 +45,12 @@ class Board: CustomStringConvertible {
             }
             
             guard   let colorName = subJson["color"].string,
-                    let color = Color.colorForName(colorName),
-                    let length = subJson["length"].int
-                    else {
-                        throw TTRError.invalidJSON
+                let color = Color.colorForName(colorName),
+                let length = subJson["length"].int
+                else {
+                    throw TTRError.invalidJSON
             }
-         
+            
             try ensureMatrixConsistency()
             try insertTrack(cities: names.map({cityWithName($0)!.1}), length: length, color: color)
         }
@@ -100,21 +100,23 @@ class Board: CustomStringConvertible {
         return nil
     }
     
-
+    private var tracks: [Track]? = nil
     func allTracks() -> [Track] {
-        var rv: [Track] = []
-        for (i, city) in cities.enumerated() {
-            for (k, entry) in matrix[i].enumerated() where k < i {
-                if entry != nil {
-                    for color in entry!.colors {
-                        rv.append(Track(city, cities[k], color: color, length: entry!.length))
+        if tracks == nil {
+            tracks = []
+            for (i, city) in cities.enumerated() {
+                for (k, entry) in matrix[i].enumerated() where k < i {
+                    if entry != nil {
+                        for color in entry!.colors {
+                            tracks!.append(Track(city, cities[k], color: color, length: entry!.length))
+                        }
                     }
                 }
             }
         }
-        return rv
+        return tracks!
     }
-
+    
     func adjacentTracks(_ city: City) -> [Track]? {
         guard let index = cities.firstIndex(of: city) else {
             return nil
@@ -130,11 +132,11 @@ class Board: CustomStringConvertible {
         
         return rv
     }
-
+    
     func areAdjacent(_ a: City, _ b: City) -> Bool? {
         guard   let A = cities.firstIndex(of: a),
-                let B = cities.firstIndex(of: b) else {
-            return nil
+            let B = cities.firstIndex(of: b) else {
+                return nil
         }
         
         return matrix[Int(A)][Int(B)] != nil
@@ -142,8 +144,8 @@ class Board: CustomStringConvertible {
     
     func tracksBetween(_ a: City, _ b: City) -> [Track]? {
         guard   let A = cities.firstIndex(of: a),
-                let B = cities.firstIndex(of: b) else {
-            return nil
+            let B = cities.firstIndex(of: b) else {
+                return nil
         }
         var rv: [Track] = []
         if matrix[Int(A)][Int(B)] != nil {

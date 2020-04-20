@@ -94,6 +94,7 @@ struct State {
     
     func asResultOfAction(_ action: TurnAction) -> (TurnAction, State) {
         var rv = self
+        rv.deck = Deck()
         var rva: TurnAction
         switch action {
         case .draw(var color):

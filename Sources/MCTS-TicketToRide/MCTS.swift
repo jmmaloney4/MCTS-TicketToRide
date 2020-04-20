@@ -8,6 +8,13 @@
 import Foundation
 import Squall
 import Dispatch
+import Concurrency
+
+func synchronized<T>(_ lock: AnyObject, _ body: () throws -> T) rethrows -> T {
+    objc_sync_enter(lock)
+    defer { objc_sync_exit(lock) }
+    return try body()
+}
 
 class MCTSAIPlayerInterface: Player {
     var tree: MCTSTree
@@ -19,11 +26,16 @@ class MCTSAIPlayerInterface: Player {
     }
     
     func takeTurn(game: Game) throws -> TurnAction {
-        let rng = newGust()
+        let latch = CountDownLatch(count: Rules.mctsIterations)
         for k in 0..<Rules.mctsIterations {
-            print(k)
-            try self.tree.runSimulation(rng: rng)
+            DispatchQueue.global(qos: .default).sync {
+                var rng = makeRNG()
+                print(k)
+                try! self.tree.runSimulation(rng: &rng)
+                latch.countDown()
+            }
         }
+        latch.await()
         return self.tree.pickMove()
     }
     
@@ -41,12 +53,12 @@ class MCTSTree {
         self.player = player
     }
     
-    func runSimulation(rng: Gust) throws {
-        _ = try self.root.simulate(rng: rng, player: self.player)
+    func runSimulation<G: RandomNumberGenerator>(rng: inout G) throws {
+        _ = try self.root.simulate(rng: &rng, player: self.player)
     }
     
     func pickMove() -> TurnAction {
-        let values = self.root.children.values.filter({ $0.countVisited > 0 }).map({ Double($0.countWon) / Double($0.countVisited) })
+        let values = self.root.children.values.filter({ $0.countVisited.value > 0 }).map({ Double($0.countWon.value) / Double($0.countVisited.value) })
         let index: Int = values.firstIndex(of: values.max()!)!
         return Array(self.root.children.keys)[index]
     }
@@ -64,8 +76,8 @@ class MCTSNode {
     private(set) var children: [TurnAction:MCTSNode] = [:]
     private(set) var state: State
     
-    fileprivate(set) var countVisited: Int = 0
-    fileprivate(set) var countWon: Int = 0
+    fileprivate(set) var countVisited: AtomicInt = AtomicInt(initialValue: 0)
+    fileprivate(set) var countWon: AtomicInt = AtomicInt(initialValue: 0)
     
     init(withState state: State) {
         self.state = state
@@ -73,7 +85,7 @@ class MCTSNode {
     
     init(asResultOf action: TurnAction, parent: MCTSNode) throws {
         var action = action
-        if parent.children[action] != nil { throw TTRError.childAlreadyExists }
+        if parent.children[action] != nil { fatalError(TTRError.childAlreadyExists.localizedDescription) }
         (action, self.state) = parent.state.asResultOfAction(action)
         parent.children[action] = self
     }
@@ -81,33 +93,35 @@ class MCTSNode {
     // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
     func computeUCT() -> [TurnAction:Double] {
         var rv: [TurnAction:Double] = [:]
-        let moves = state.getLegalMoves()
-        for move in moves {
-            var expected: Double
-            var explore: Double
-            var stats: (won: Int, visited: Int)?
-            switch move {
-            case .draw:
-                stats = self.children
-                    .filter({ switch $0.key { case .draw: return true; default: return false; } })
-                    .reduce((0, 0), { return ($0.0 + $1.value.countWon, $0.1 + $1.value.countVisited) })
-            default:
-                if let child = self.children[move] {
-                    stats = (child.countWon, child.countVisited)
+        synchronized(self) {
+            let moves = state.getLegalMoves()
+            for move in moves {
+                var expected: Double
+                var explore: Double
+                var stats: (won: Int, visited: Int)?
+                switch move {
+                case .draw:
+                    stats = self.children
+                        .filter({ switch $0.key { case .draw: return true; default: return false; } })
+                        .reduce((0, 0), { return ($0.0 + $1.value.countWon.value, $0.1 + $1.value.countVisited.value) })
+                default:
+                    if let child = self.children[move] {
+                        stats = (child.countWon.value, child.countVisited.value)
+                    }
                 }
+                
+                if stats != nil, stats!.visited > 0 {
+                    expected = Double(stats!.0) / Double(stats!.1)
+                    explore = sqrt(log(Double(self.countVisited.value)) / Double(stats!.1))
+                } else {
+                    expected = sqrt(2)
+                    explore = 1
+                }
+                
+                let uct = expected + (Rules.uctExplorationConstant * explore)
+                if uct.isNaN { fatalError() }
+                rv[move] = uct
             }
-            
-            if stats != nil, stats!.visited > 0 {
-                expected = Double(stats!.0) / Double(stats!.1)
-                explore = sqrt(log(Double(self.countVisited + 1)) / Double(stats!.1))
-            } else {
-                expected = sqrt(2)
-                explore = 1
-            }
-            
-            let uct = expected + (Rules.uctExplorationConstant * explore)
-            if uct.isNaN { fatalError() }
-            rv[move] = uct
         }
         return rv
     }
@@ -124,40 +138,50 @@ class MCTSNode {
             return try self.children[action]!.uct()
         }
         let rv = try MCTSNode(asResultOf: action, parent: self)
-        // guard self.children[action] === rv else { fatalError() }
         return rv
     }
     
-    func simulate(rng: Gust, player: Int) throws -> Int {
+    func simulate<G: RandomNumberGenerator>(rng: inout G, player: Int) throws -> Int {
         let action = maxUCT()
         var winner: Int
-        if self.children[action] != nil {
-            winner = try self.children[action]!.simulate(rng: rng, player: player)
+        
+        var child: MCTSNode!
+        let exit: AtomicBool = AtomicBool(initialValue: false)
+        try synchronized(self) {
+            let exantChild = self.children[action]
+            if exantChild != nil {
+                child = exantChild!
+            } else {
+                child = try MCTSNode(asResultOf: action, parent: self)
+                _ = exit.getAndSet(newValue: true)
+            }
+        }
+        
+        if !exit.value {
+            winner = try child.simulate(rng: &rng, player: player)
         } else {
-            let child = try MCTSNode(asResultOf: action, parent: self)
             var state: State = child.state
             while !state.gameOver {
                 let moves = state.getLegalMoves()
-                let move = moves[Int(rng.next() / UInt64(UInt32.max)) % moves.count]
+                let move = moves.randomElement(using: &rng)!
                 (_, state) = state.asResultOfAction(move)
             }
             winner = state.calculateWinner()
             
-            child.countVisited += 1
-            if winner == player { child.countWon += 1 }
+            child.countVisited.getAndIncrement()
+            if winner == player { child.countWon.getAndIncrement() }
         }
         
-        self.countVisited += 1
-        if winner == player { self.countWon += 1 }
+        self.countVisited.getAndIncrement()
+        if winner == player { self.countWon.getAndIncrement() }
         
         return winner
     }
 }
 
-
 class RandomAIPlayerInterface: Player {
     var player: Int
-    var rng: Gust = newGust()
+    var rng = makeRNG()
     
     init(state: State, player: Int) {
         self.player = player

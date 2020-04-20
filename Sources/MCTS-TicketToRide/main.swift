@@ -30,7 +30,7 @@ struct MCTS: ParsableCommand {
         print("\(board.adjacentTracks(City("Paris"))!)")
         
         for i in 0...20 {
-            let game = try Game(board: board, deck: Deck(), players: .random, .random, .random, .mcts)
+            let game = try Game(board: board, deck: Deck(), players: .random, .mcts)
         }
         
         
