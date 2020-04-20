@@ -7,6 +7,7 @@
 
 import Foundation
 import Squall
+import Dispatch
 
 class MCTSAIPlayerInterface: Player {
     var tree: MCTSTree
@@ -20,6 +21,7 @@ class MCTSAIPlayerInterface: Player {
     func takeTurn(game: Game) throws -> TurnAction {
         let rng = newGust()
         for k in 0..<Rules.mctsIterations {
+            print(k)
             try self.tree.runSimulation(rng: rng)
         }
         return self.tree.pickMove()

@@ -54,7 +54,7 @@ class Game {
     func start() throws {
         while !self.state.gameOver {
             let (action, state) = self.state.asResultOfAction( try self.players[self.state.turn].takeTurn(game: self))
-            print("Player (\(self.players[self.state.turn].type) \(self.state.turn): \(action)")
+            print("Player (\(self.players[self.state.turn].type)) \(self.state.turn): \(action)")
             for p in players {
                 try p.update(game: self, player: self.state.lastTurn(), action: action)
                 // print(tree.root.state.turn)
@@ -62,6 +62,6 @@ class Game {
             self.state = state
         }
         let winner = self.state.calculateWinner()
-        print("Winner: \(winner) (\(self.players[winner].type)")
+        print("Winner: \(winner) (\(self.players[winner].type))")
     }
 }

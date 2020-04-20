@@ -45,14 +45,9 @@ struct Hand {
     }
     
     func maxColorCount() -> (Color, Int) {
-        var tmp: Color?
-        for (color, count) in self.cards where tmp == nil || count > self.cards[tmp!] ?? 0 {
-            tmp = color
-        }
-        if tmp == nil {
-            return (.red, 0)
-        }
-        return (tmp!, self.cards[tmp!] ?? 0)
+        let max = self.cards.values.max() ?? 0
+        let color = self.cards.first(where: {$0.value == max})?.key ?? .red
+        return (color, max)
     }
     
     private static func cardArrayToDict(_ arr: [Color]) -> [Color:Int] {
