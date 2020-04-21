@@ -9,13 +9,13 @@ import Foundation
 import Squall
 import Concurrency
 
-typealias RNG = Gust
+typealias RNG = SystemRandomNumberGenerator
 
 private var RNG_OFFSET: AtomicInt = AtomicInt(initialValue: 0)
 
 func makeRNG() -> RNG {
-    return Gust(offset: UInt32(RNG_OFFSET.incrementAndGet()))
-    // return SystemRandomNumberGenerator()
+    // return Gust(offset: UInt32(RNG_OFFSET.incrementAndGet()))
+    return SystemRandomNumberGenerator()
     // return PRNG(RNG_OFFSET.incrementAndGet())
 }
 

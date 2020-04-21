@@ -32,7 +32,7 @@ class Deck {
     }
 }
 
-struct Hand {
+struct Hand: Equatable {
     private var cards: [Color:Int]
     
     init(deck: Deck) {
@@ -44,9 +44,10 @@ struct Hand {
     }
     
     func maxColorCount() -> (Color, Int) {
-        let max = self.cards.values.max() ?? 0
-        let color = self.cards.first(where: {$0.value == max})?.key ?? .red
-        return (color, max)
+        if self.cards.count == 0 { return (.red, 0) }
+        let max = self.cards.values.max()!
+        let options = self.cards.filter({ $0.value == max }).map({ $0.key }).sorted(by: { $0.rawValue < $1.rawValue })
+        return (options[0], max)
     }
     
     private static func cardArrayToDict(_ arr: [Color]) -> [Color:Int] {
@@ -71,29 +72,22 @@ struct Hand {
     }
     
     mutating func removeCard(_ color: Color) -> Int? {
-        if self.cards[color] != nil && self.cards[color]! > 0 {
+        if self.cards[color] != nil, self.cards[color]! > 0 {
             self.cards[color]! -= 1
             return self.cards[color]!
         }
         return nil
     }
     
-    mutating func playCards(_ color: Color? = nil, count: Int) -> (Int, Color)? {
-        var tmp = color
-        if tmp == nil {
-            tmp = self.maxColorCount().0
-        }
-        let color = tmp!
-        
-        // print(color, count, self.cards[color])
-        if self.cards[color] != nil && self.cards[color]! >= count {
+    mutating func playCards(_ color: Color, count: Int) -> Bool {
+        if self.cards[color] != nil, self.cards[color]! >= count {
             self.cards[color]! -= count
-            return (self.cards[color]!, color)
+            return true
         }
         
         print(self)
         print(color)
         print(count)
-        return nil
+        return false
     }
 }

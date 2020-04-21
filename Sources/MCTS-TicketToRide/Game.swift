@@ -56,11 +56,10 @@ class Game {
         while !self.state.gameOver {
             let (action, state) = self.state.asResultOfAction( try self.players[self.state.player()].takeTurn(game: self))
             print("Player (\(self.players[self.state.player()].type)) \(self.state.player()): \(action)")
+            self.state = state
             for p in players {
                 try p.update(game: self, player: self.state.player(), action: action)
-                // print(tree.root.state.turn)
             }
-            self.state = state
         }
         let winner = self.state.calculateWinner()
         print("Winner: \(winner) (\(self.players[winner].type))")

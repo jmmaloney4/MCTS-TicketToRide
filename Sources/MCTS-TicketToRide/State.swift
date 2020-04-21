@@ -10,7 +10,7 @@ import Squall
 import Dispatch
 import Concurrency
 
-struct PlayerState {
+struct PlayerState: Equatable {
     var hand: Hand
     var traincars: Int
     var tracksOwned: [Track]
@@ -26,9 +26,13 @@ struct PlayerState {
         self.traincars = traincars
         self.tracksOwned = []
     }
+    
+    static func == (lhs: PlayerState, rhs: PlayerState) -> Bool {
+        return lhs.hand == rhs.hand && lhs.traincars == rhs.traincars && lhs.tracksOwned == rhs.tracksOwned
+    }
 }
 
-struct State {
+struct State: Equatable {
     private(set) var game: Game
     private(set) var deck: Deck
     private(set) var players: [PlayerState]
@@ -52,6 +56,10 @@ struct State {
         for _ in 0..<playerCount {
             self.players.append(PlayerState(hand: Hand(deck: self.deck)))
         }
+    }
+    
+    static func == (lhs: State, rhs: State) -> Bool {
+        return lhs.game === rhs.game && lhs.turn == rhs.turn && lhs.players == rhs.players
     }
     
     func ownedTracks() -> [Track] {
@@ -99,38 +107,38 @@ struct State {
     
     func asResultOfAction(_ action: TurnAction) -> (TurnAction, State) {
         var rv = self
-        rv.turn += 1
         rv.deck = Deck()
         var rva: TurnAction
         switch action {
         case .draw(var color):
             if color == .unspecified { color = rv.deck.draw() }
-            _ = rv.players[self.player()].hand.addCard(color)
+            _ = rv.players[rv.player()].hand.addCard(color)
             rva = .draw(color)
         case .build(let track):
             rva = .build(track)
-            guard track.length <= rv.players[self.player()].traincars else { fatalError() }
-            rv.players[self.player()].traincars -= track.length
+            guard track.length <= rv.players[rv.player()].traincars else { fatalError() }
+            rv.players[rv.player()].traincars -= track.length
             
             // Set last round if traincars falls beelow cutoff
-            if rv.players[self.player()].traincars <= Rules.traincarCutoff { rv.lastPlayer = rv.previousPlayer() }
+            if rv.players[rv.player()].traincars <= Rules.traincarCutoff { rv.lastPlayer = rv.previousPlayer() }
             
             switch track.color {
             case .unspecified:
-                guard rv.players[self.player()].hand.playCards(count: track.length) != nil else {
+                let color = rv.players[rv.player()].hand.maxColorCount().0
+                guard rv.players[rv.player()].hand.playCards(color, count: track.length) else {
                     print(track)
                     fatalError()
                 }
             default:
-                guard rv.players[self.player()].hand.playCards(track.color, count: track.length) != nil else {
+                guard rv.players[rv.player()].hand.playCards(track.color, count: track.length) else {
                     print(track)
                     fatalError()
                 }
             }
-            
-            rv.players[self.player()].tracksOwned.append(track)
+            rv.players[rv.player()].tracksOwned.append(track)
         }
         
+        rv.turn += 1
         return (rva, rv)
     }
     

@@ -43,6 +43,7 @@ class MCTSAIPlayerInterface: Player {
     
     func update(game: Game, player: Int, action: TurnAction) throws {
         try self.tree.updateRoot(action)
+        guard self.tree.root.state == game.state else { fatalError() }
     }
 }
 
@@ -66,6 +67,7 @@ class MCTSTree {
     }
     
     func updateRoot(_ action: TurnAction) throws {
+        guard action != .draw(.unspecified) else { fatalError() }
         if let root = self.root.children[action] {
             self.root = root
         } else {
