@@ -30,7 +30,7 @@ class MCTSAIPlayerInterface: Player {
         for k in 0..<Rules.mctsIterations {
             DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
-                if k % 100 == 0 {
+                if k % 500 == 0 {
                     print(k)
                 }
                 try! self.tree.runSimulation(rng: &rng)
@@ -116,7 +116,7 @@ class MCTSNode {
                 
                 if stats != nil, stats!.visited > 0 {
                     expected = Double(stats!.0) / Double(stats!.1)
-                    explore = sqrt(log(Double(self.countVisited.value)) / Double(stats!.1))
+                    explore = sqrt(log(Double(self.countVisited.value + 1)) / Double(stats!.1))
                 } else {
                     expected = sqrt(2)
                     explore = 1

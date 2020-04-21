@@ -29,11 +29,8 @@ struct MCTS: ParsableCommand {
     @Argument(help: "MCTS Iterations")
     var iterations: Int
     
-    @Argument(help: "Random Players")
-    var rands: Int
-    
-    @Argument(help: "Big Track Players")
-    var bigs: Int
+    @Argument(help: "Players")
+    var players: String
     
     @Argument(help: "Games")
     var games: Int
@@ -47,10 +44,15 @@ struct MCTS: ParsableCommand {
         Rules.initialTraincarCount = traincars
         Rules.mctsIterations = iterations
         
-        let r = Array(repeating: PlayerType.random, count: rands)
-        let b = Array(repeating: PlayerType.big, count: bigs)
-        var p = r + b
-        p.append(.mcts)
+        var p: [PlayerType] = []
+        players.forEach {
+            switch $0 {
+            case "m": p.append(.mcts)
+            case "r": p.append(.random)
+            case "b": p.append(.big)
+            default: fatalError()
+            }
+        }
         
         var wins: [Int] = Array(repeating: 0, count: p.count)
         for _ in 0..<games {
@@ -59,6 +61,7 @@ struct MCTS: ParsableCommand {
             wins[w] += 1
         }
         
+        print(p)
         print(wins)
         
     }

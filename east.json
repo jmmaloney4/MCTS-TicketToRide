@@ -1,0 +1,352 @@
+[
+	{
+		"endpoints": ["Berlin", "Warszawa"],
+		"color": "Pink",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Berlin", "Warszawa"],
+		"color": "Yellow",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Berlin", "Wien"],
+		"color": "Green",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Berlin", "Essen"],
+		"color": "Blue",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Berlin", "Danzic"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Budapest", "Kyiv"],
+		"color": "Unspecified",
+		"length": 6,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Budapest", "Wien"],
+		"color": "White",
+		"length": 1,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Budapest", "Bucuresti"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Budapest", "Wien"],
+		"color": "Red",
+		"length": 1,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Budapest", "Sarajevo"],
+		"color": "Pink",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kyiv", "Warszawa"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kyiv", "Bucuresti"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kyiv", "Wilno"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kyiv", "Kharkov"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kyiv", "Smolensk"],
+		"color": "Red",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Warszawa", "Wien"],
+		"color": "Blue",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Warszawa", "Wilno"],
+		"color": "Red",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Warszawa", "Danzic"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Bucuresti", "Constantinople"],
+		"color": "Yellow",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Bucuresti", "Sevastopol"],
+		"color": "White",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Bucuresti", "Sofia"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Constantinople", "Sevastopol"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 2
+	},
+	{
+		"endpoints": ["Constantinople", "Smyrna"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Constantinople", "Sofia"],
+		"color": "Blue",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Constantinople", "Angora"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Essen", "Amsterdam"],
+		"color": "Yellow",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Essen", "Kobenhavn"],
+		"color": "Unspecified",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 1
+	},
+	{
+		"endpoints": ["Essen", "Kobenhavn"],
+		"color": "Unspecified",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 1
+	},
+	{
+		"endpoints": ["Sevastopol", "Erzurum"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 2
+	},
+	{
+		"endpoints": ["Sevastopol", "Rostov"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Sevastopol", "Sochi"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 1
+	},
+	{
+		"endpoints": ["Wilno", "Petrograd"],
+		"color": "Blue",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Wilno", "Rica"],
+		"color": "Green",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Wilno", "Smolensk"],
+		"color": "Yellow",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Athina", "Sarajevo"],
+		"color": "Green",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Athina", "Smyrna"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 1
+	},
+	{
+		"endpoints": ["Athina", "Sofia"],
+		"color": "Pink",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kobenhavn", "Stockholm"],
+		"color": "Yellow",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kobenhavn", "Stockholm"],
+		"color": "White",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Petrograd", "Moskva"],
+		"color": "White",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Petrograd", "Rica"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Petrograd", "Stockholm"],
+		"color": "Unspecified",
+		"length": 8,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Sarajevo", "Sofia"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Smyrna", "Angora"],
+		"color": "Orange",
+		"length": 3,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Danzic", "Rica"],
+		"color": "Black",
+		"length": 3,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Erzurum", "Sochi"],
+		"color": "Red",
+		"length": 3,
+		"tunnel": true,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kharkov", "Moskva"],
+		"color": "Unspecified",
+		"length": 4,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Kharkov", "Rostov"],
+		"color": "Green",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Moskva", "Smolensk"],
+		"color": "Orange",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+	{
+		"endpoints": ["Rostov", "Sochi"],
+		"color": "Unspecified",
+		"length": 2,
+		"tunnel": false,
+		"ferries": 0
+	},
+]
