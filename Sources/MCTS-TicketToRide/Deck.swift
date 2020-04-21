@@ -7,7 +7,6 @@
 
 import Foundation
 import Squall
-import Concurrency
 
 class Deck {
     // Gust is a class type, which is what we want, that way the deck is
@@ -35,8 +34,8 @@ class Deck {
 struct Hand: Equatable {
     private var cards: [Color:Int]
     
-    init(deck: Deck) {
-        self.cards = Hand.cardArrayToDict(deck.draw(Rules.initialHandCount))
+    init(deck: Deck, count: Int) {
+        self.cards = Hand.cardArrayToDict(deck.draw(count))
     }
     
     func cardsOf(_ color: Color) -> Int {

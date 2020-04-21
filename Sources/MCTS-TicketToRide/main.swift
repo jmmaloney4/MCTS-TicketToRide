@@ -27,14 +27,17 @@ struct MCTS: ParsableCommand {
     @Argument(help: "Traincars")
     var traincars: Int
     
-    @Argument(help: "MCTS Iterations")
-    var iterations: Int
+    @Argument(help: "Games")
+    var games: Int
     
     @Argument(help: "Players")
     var players: String
     
-    @Argument(help: "Games")
-    var games: Int
+    @Argument(help: "MCTS Explore")
+    var explore: Double
+    
+    @Argument(help: "MCTS Iterations")
+    var iters: [Int]
 
     func run() throws {
         let board = try Board(fromFile: Path(path))
@@ -56,14 +59,13 @@ struct MCTS: ParsableCommand {
             print(a.incrementAndGet())
         }
         
-        
-        Rules.initialTraincarCount = traincars
-        Rules.mctsIterations = iterations
+        let rules = Rules(initialHandCount: 4, initialTraincarCount: traincars, traincarCutoff: 3)
         
         var p: [PlayerType] = []
+        var mcts_count: Int = 0
         players.forEach {
             switch $0 {
-            case "m": p.append(.mcts)
+            case "m": p.append(.mcts(iters[mcts_count], explore)); mcts_count += 1
             case "r": p.append(.random)
             case "b": p.append(.big)
             default: fatalError()
@@ -72,7 +74,7 @@ struct MCTS: ParsableCommand {
         
         var wins: [Int] = Array(repeating: 0, count: p.count)
         for _ in 0..<games {
-            let game = try Game(board: board, deck: Deck(), players: p)
+            let game = try Game(board: board, deck: Deck(), rules: rules, players: p)
             let w = try! game.start()
             wins[w] += 1
         }

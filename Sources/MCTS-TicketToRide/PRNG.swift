@@ -7,7 +7,6 @@
 
 import Foundation
 import Squall
-import Concurrency
 
 typealias RNG = SystemRandomNumberGenerator
 

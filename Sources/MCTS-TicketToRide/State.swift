@@ -8,7 +8,6 @@
 import Foundation
 import Squall
 import Dispatch
-import Concurrency
 
 struct PlayerState: Equatable {
     var hand: Hand
@@ -21,7 +20,7 @@ struct PlayerState: Equatable {
         self.tracksOwned = copy.tracksOwned
     }
     
-    init(hand: Hand, traincars: Int = Rules.initialTraincarCount) {
+    init(hand: Hand, traincars: Int) {
         self.hand = hand
         self.traincars = traincars
         self.tracksOwned = []
@@ -41,7 +40,7 @@ struct State: Equatable {
     private(set) var lastPlayer: Int? = nil
     var lastRound: Bool { return self.lastPlayer != nil }
     var gameOver: Bool {
-        if Rules.turnCutoff != nil, turn > Rules.turnCutoff! {
+        if TURN_CUTOFF != nil, turn > TURN_CUTOFF! {
             print("Terminating Game with \(turn) turns played.")
             return true
         }
@@ -54,7 +53,7 @@ struct State: Equatable {
         self.turn = 0
         self.players = []
         for _ in 0..<playerCount {
-            self.players.append(PlayerState(hand: Hand(deck: self.deck)))
+            self.players.append(PlayerState(hand: Hand(deck: self.deck, count: game.rules.initialHandCount), traincars: game.rules.initialTraincarCount))
         }
     }
     
@@ -120,7 +119,7 @@ struct State: Equatable {
             rv.players[rv.player()].traincars -= track.length
             
             // Set last round if traincars falls beelow cutoff
-            if rv.players[rv.player()].traincars <= Rules.traincarCutoff { rv.lastPlayer = rv.previousPlayer() }
+            if rv.players[rv.player()].traincars <= self.game.rules.traincarCutoff { rv.lastPlayer = rv.previousPlayer() }
             
             switch track.color {
             case .unspecified:

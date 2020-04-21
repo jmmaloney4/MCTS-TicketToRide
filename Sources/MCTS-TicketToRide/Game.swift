@@ -13,7 +13,7 @@ enum TurnAction: Hashable {
 }
 
 enum PlayerType {
-    case mcts
+    case mcts(Int, Double)
     case random
     case big
 }
@@ -21,31 +21,25 @@ enum PlayerType {
 protocol Player {
     func takeTurn(game: Game) throws -> TurnAction
     func update(game: Game, player: Int, action: TurnAction) throws
-}
-
-extension Player {
-    var type: PlayerType {
-        if self is MCTSAIPlayerInterface { return .mcts }
-        else if self is RandomAIPlayerInterface { return .random }
-        else if self is BigTrackAIPlayerInterface { return .big }
-        else { fatalError() }
-    }
+    
+    var type: PlayerType { get }
 }
 
 class Game {
     private(set) var board: Board
     private(set) var players: [Player]!
-//    private var trees: [MCTSTree] = []
     private(set) var state: State!
+    private(set) var rules: Rules
     
-    init(board: Board, deck:Deck, players: [PlayerType]) throws {
+    init(board: Board, deck: Deck, rules: Rules, players: [PlayerType]) throws {
         self.board = board
+        self.rules = rules
         self.state = State(asRootOf: self, withDeck: deck, playerCount: players.count)
         
         self.players = players.enumerated().map({
             let p = $0.offset
             switch $0.element {
-            case .mcts: return MCTSAIPlayerInterface(state: state, player: p)
+            case .mcts(let iter, let C): return MCTSAIPlayerInterface(state: state, player: p, iterations: iter, explore: C)
             case .random: return RandomAIPlayerInterface(state: state, player: p)
             case .big: return BigTrackAIPlayerInterface(state: state, player: p)
             }

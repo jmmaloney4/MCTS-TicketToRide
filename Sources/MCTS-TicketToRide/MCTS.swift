@@ -8,27 +8,29 @@
 import Foundation
 import Squall
 import Dispatch
-import Concurrency
 
-func synchronized<T>(_ lock: AnyObject, _ body: () throws -> T) rethrows -> T {
-    objc_sync_enter(lock)
-    defer { objc_sync_exit(lock) }
-    return try body()
-}
+let TURN_CUTOFF: Int? = 100_000
 
 class MCTSAIPlayerInterface: Player {
     var tree: MCTSTree
     var player: Int
+    let iterations: Int
+    let uctExploreConstant: Double
     private var interfaceTimer: Date = Date()
     
-    init(state: State, player: Int) {
+    var type: PlayerType { return .mcts(self.iterations, self.uctExploreConstant) }
+    
+    init(state: State, player: Int, iterations: Int, explore: Double) {
         self.tree = MCTSTree(state, forPlayer: player)
         self.player = player
+        self.iterations = iterations
+        self.uctExploreConstant = explore
+        print("MCTS Initialized - \(self.iterations) \(self.uctExploreConstant)")
     }
     
     func takeTurn(game: Game) throws -> TurnAction {
-        let latch = CountDownLatch(count: Rules.mctsIterations)
-        for k in 0..<Rules.mctsIterations {
+        let latch = CountDownLatch(count: self.iterations)
+        for k in 0..<self.iterations {
             interfaceTimer = Date()
             DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
@@ -39,7 +41,7 @@ class MCTSAIPlayerInterface: Player {
                     }
                 }
                 
-                try! self.tree.runSimulation(rng: &rng)
+                try! self.tree.runSimulation(rng: &rng, explore: self.uctExploreConstant)
                 latch.countDown()
             }
         }
@@ -62,8 +64,8 @@ class MCTSTree {
         self.player = player
     }
     
-    func runSimulation<G: RandomNumberGenerator>(rng: inout G) throws {
-        _ = try self.root.simulate(rng: &rng, player: self.player)
+    func runSimulation<G: RandomNumberGenerator>(rng: inout G, explore C: Double) throws {
+        _ = try self.root.simulate(rng: &rng, player: self.player, explore: C)
     }
     
     func pickMove() -> TurnAction {
@@ -101,7 +103,7 @@ class MCTSNode {
     }
     
     // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
-    func computeUCT() -> [TurnAction:Double] {
+    func computeUCT(explore C: Double) -> [TurnAction:Double] {
         var rv: [TurnAction:Double] = [:]
         synchronized(self) {
             let moves = state.getLegalMoves()
@@ -128,7 +130,7 @@ class MCTSNode {
                     explore = 1
                 }
                 
-                let uct = expected + (Rules.uctExplorationConstant * explore)
+                let uct = expected + (C * explore)
                 if uct.isNaN { fatalError() }
                 rv[move] = uct
             }
@@ -136,23 +138,23 @@ class MCTSNode {
         return rv
     }
     
-    func maxUCT() -> TurnAction {
-        let uct = computeUCT()
+    func maxUCT(explore C: Double) -> TurnAction {
+        let uct = computeUCT(explore: C)
         guard let max = uct.values.max() else { fatalError() }
         return uct.enumerated().first(where: { element -> Bool in element.element.value == max })!.element.key
     }
     
-    func uct() throws -> MCTSNode {
-        let action = maxUCT()
+    func uct(explore C: Double) throws -> MCTSNode {
+        let action = maxUCT(explore: C)
         if self.children[action] != nil {
-            return try self.children[action]!.uct()
+            return try self.children[action]!.uct(explore: C)
         }
         let rv = try MCTSNode(asResultOf: action, parent: self)
         return rv
     }
     
-    func simulate<G: RandomNumberGenerator>(rng: inout G, player: Int) throws -> Int {
-        let action = maxUCT()
+    func simulate<G: RandomNumberGenerator>(rng: inout G, player: Int, explore C: Double) throws -> Int {
+        let action = maxUCT(explore: C)
         var winner: Int
         
         var child: MCTSNode!
@@ -168,7 +170,7 @@ class MCTSNode {
         }
         
         if !exit.value {
-            winner = try child.simulate(rng: &rng, player: player)
+            winner = try child.simulate(rng: &rng, player: player, explore: C)
         } else {
             var state: State = child.state
             while !state.gameOver {
@@ -193,6 +195,8 @@ class RandomAIPlayerInterface: Player {
     var player: Int
     var rng = makeRNG()
     
+    var type: PlayerType = .random
+    
     init(state: State, player: Int) {
         self.player = player
     }
@@ -210,6 +214,8 @@ class RandomAIPlayerInterface: Player {
 class BigTrackAIPlayerInterface: Player {
     var player: Int
     var rng = makeRNG()
+    
+    var type: PlayerType = .big
     
     init(state: State, player: Int) {
         self.player = player

@@ -8,6 +8,12 @@
 import Foundation
 import Dispatch
 
+func synchronized<T>(_ lock: AnyObject, _ body: () throws -> T) rethrows -> T {
+    objc_sync_enter(lock)
+    defer { objc_sync_exit(lock) }
+    return try body()
+}
+
 struct Atomic<T> {
     private var _value: T
     private var _lock: DispatchSemaphore
