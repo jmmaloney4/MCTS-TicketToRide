@@ -30,7 +30,9 @@ class MCTSAIPlayerInterface: Player {
         for k in 0..<Rules.mctsIterations {
             DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
-                print(k)
+                if k % 100 == 0 {
+                    print(k)
+                }
                 try! self.tree.runSimulation(rng: &rng)
                 latch.countDown()
             }
@@ -195,5 +197,29 @@ class RandomAIPlayerInterface: Player {
     func update(game: Game, player: Int, action: TurnAction) {
         
     }
+}
+
+class BigTrackAIPlayerInterface: Player {
+    var player: Int
+    var rng = makeRNG()
     
+    init(state: State, player: Int) {
+        self.player = player
+    }
+    
+    func takeTurn(game: Game) throws -> TurnAction {
+        let tracks = game.state.unownedTracks()
+        let max = tracks.map({ $0.length }).max()!
+        let big = tracks[tracks.firstIndex(where: { $0.length == max })!]
+        let moves = game.state.getLegalMoves()
+        if moves.contains(.build(big)) {
+            return .build(big)
+        } else {
+            return .draw(.unspecified)
+        }
+    }
+    
+    func update(game: Game, player: Int, action: TurnAction) {
+        
+    }
 }

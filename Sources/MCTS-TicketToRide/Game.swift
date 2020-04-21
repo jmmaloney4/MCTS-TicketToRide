@@ -15,6 +15,7 @@ enum TurnAction: Hashable {
 enum PlayerType {
     case mcts
     case random
+    case big
 }
 
 protocol Player {
@@ -26,6 +27,7 @@ extension Player {
     var type: PlayerType {
         if self is MCTSAIPlayerInterface { return .mcts }
         else if self is RandomAIPlayerInterface { return .random }
+        else if self is BigTrackAIPlayerInterface { return .big }
         else { fatalError() }
     }
 }
@@ -45,13 +47,12 @@ class Game {
             switch $0.element {
             case .mcts: return MCTSAIPlayerInterface(state: state, player: p)
             case .random: return RandomAIPlayerInterface(state: state, player: p)
+            case .big: return BigTrackAIPlayerInterface(state: state, player: p)
             }
         })
-        
-        try self.start()
     }
     
-    func start() throws {
+    func start() throws -> Int {
         while !self.state.gameOver {
             let (action, state) = self.state.asResultOfAction( try self.players[self.state.player()].takeTurn(game: self))
             print("Player (\(self.players[self.state.player()].type)) \(self.state.player()): \(action)")
@@ -63,5 +64,6 @@ class Game {
         }
         let winner = self.state.calculateWinner()
         print("Winner: \(winner) (\(self.players[winner].type))")
+        return winner
     }
 }

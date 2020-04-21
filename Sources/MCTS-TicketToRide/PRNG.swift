@@ -19,8 +19,8 @@ func makeRNG() -> RNG {
     // return PRNG(RNG_OFFSET.incrementAndGet())
 }
 
-private let A: UInt32 = 15342; // any number in (0, RAND_MAX)
-private let C: UInt32 = 45194; // any number in [0, RAND_MAX)
+private let A: UInt32 = 514229; // any number in (0, RAND_MAX)
+private let C: UInt32 = 31397; // any number in [0, RAND_MAX)
 
 class PRNG: RandomNumberGenerator {
     var prev: UInt32

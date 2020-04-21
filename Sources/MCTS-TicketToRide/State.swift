@@ -36,7 +36,13 @@ struct State {
     
     private(set) var lastPlayer: Int? = nil
     var lastRound: Bool { return self.lastPlayer != nil }
-    var gameOver: Bool { return lastRound && self.previousPlayer() == lastPlayer }
+    var gameOver: Bool {
+        if Rules.turnCutoff != nil, turn > Rules.turnCutoff! {
+            print("Terminating Game with \(turn) turns played.")
+            return true
+        }
+        return (lastRound && self.previousPlayer() == lastPlayer)
+    }
     
     init(asRootOf game: Game, withDeck deck: Deck, playerCount: Int) {
         self.game = game
@@ -48,7 +54,7 @@ struct State {
         }
     }
     
-    private func ownedTracks() -> [Track] {
+    func ownedTracks() -> [Track] {
         self.players.reduce([]) { (res: [Track], player) -> [Track] in
             var res = res
             res.append(contentsOf: player.tracksOwned)
@@ -56,12 +62,12 @@ struct State {
         }
     }
     
-    private func unownedTracks() -> [Track] {
+    func unownedTracks() -> [Track] {
         let owned = self.ownedTracks()
         return self.game.board.allTracks().filter({ !owned.contains($0) })
     }
     
-    private func tracksBuildable() -> [Track] {
+    func tracksBuildable() -> [Track] {
         return self.unownedTracks().filter({
             guard $0.length <= self.players[self.player()].traincars else { return false }
             switch $0.color {
