@@ -32,10 +32,10 @@ class MCTSAIPlayerInterface: Player {
         let latch = CountDownLatch(count: self.iterations)
         for k in 0..<self.iterations {
             interfaceTimer = Date()
-            DispatchQueue.global(qos: .default).async {
+            DispatchQueue.global(qos: .default).sync {
                 var rng = makeRNG()
                 synchronized(self) {
-                    if abs(self.interfaceTimer.timeIntervalSinceNow) > 1.0 {
+                    if abs(self.interfaceTimer.timeIntervalSinceNow) >= 0.0 {
                         self.interfaceTimer = Date()
                         print(k)
                     }
@@ -203,7 +203,7 @@ class RandomAIPlayerInterface: Player {
     
     func takeTurn(game: Game) throws -> TurnAction {
         let moves = game.state.getLegalMoves()
-        return moves[Int(rng.next(upperBound: UInt(moves.count)))]
+        return moves.randomElement(using: &rng)!
     }
     
     func update(game: Game, player: Int, action: TurnAction) {
