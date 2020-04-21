@@ -1,5 +1,6 @@
 import ArgumentParser
 import PathKit
+import Dispatch
 
 struct MCTS: ParsableCommand {
     // Customize your command's help and subcommands by implementing the
@@ -38,8 +39,23 @@ struct MCTS: ParsableCommand {
     func run() throws {
         let board = try Board(fromFile: Path(path))
         print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
-        print("\(board.tracksBetween(City("Paris"), City("Pamplona"))!)")
-        print("\(board.adjacentTracks(City("Paris"))!)")
+        print(board.allTracks().count)
+        
+        var a = AtomicInt()
+        print(a.incrementAndGet())
+        DispatchQueue.global().async {
+            print(a.incrementAndGet())
+        }
+        DispatchQueue.global().async {
+            print(a.incrementAndGet())
+        }
+        DispatchQueue.global().async {
+            print(a.incrementAndGet())
+        }
+        DispatchQueue.global().async {
+            print(a.incrementAndGet())
+        }
+        
         
         Rules.initialTraincarCount = traincars
         Rules.mctsIterations = iterations

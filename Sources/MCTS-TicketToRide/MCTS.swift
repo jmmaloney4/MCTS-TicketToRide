@@ -19,6 +19,7 @@ func synchronized<T>(_ lock: AnyObject, _ body: () throws -> T) rethrows -> T {
 class MCTSAIPlayerInterface: Player {
     var tree: MCTSTree
     var player: Int
+    private var interfaceTimer: Date = Date()
     
     init(state: State, player: Int) {
         self.tree = MCTSTree(state, forPlayer: player)
@@ -28,11 +29,16 @@ class MCTSAIPlayerInterface: Player {
     func takeTurn(game: Game) throws -> TurnAction {
         let latch = CountDownLatch(count: Rules.mctsIterations)
         for k in 0..<Rules.mctsIterations {
+            interfaceTimer = Date()
             DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
-                if k % 500 == 0 {
-                    print(k)
+                synchronized(self) {
+                    if abs(self.interfaceTimer.timeIntervalSinceNow) > 1.0 {
+                        self.interfaceTimer = Date()
+                        print(k)
+                    }
                 }
+                
                 try! self.tree.runSimulation(rng: &rng)
                 latch.countDown()
             }
@@ -80,8 +86,8 @@ class MCTSNode {
     private(set) var children: [TurnAction:MCTSNode] = [:]
     private(set) var state: State
     
-    fileprivate(set) var countVisited: AtomicInt = AtomicInt(initialValue: 0)
-    fileprivate(set) var countWon: AtomicInt = AtomicInt(initialValue: 0)
+    fileprivate(set) var countVisited: AtomicInt = AtomicInt(0)
+    fileprivate(set) var countWon: AtomicInt = AtomicInt(0)
     
     init(withState state: State) {
         self.state = state
@@ -150,14 +156,14 @@ class MCTSNode {
         var winner: Int
         
         var child: MCTSNode!
-        let exit: AtomicBool = AtomicBool(initialValue: false)
+        var exit: AtomicBool = AtomicBool(false)
         try synchronized(self) {
             let exantChild = self.children[action]
             if exantChild != nil {
                 child = exantChild!
             } else {
                 child = try MCTSNode(asResultOf: action, parent: self)
-                _ = exit.getAndSet(newValue: true)
+                exit.getAndSet(true)
             }
         }
         
@@ -172,12 +178,12 @@ class MCTSNode {
             }
             winner = state.calculateWinner()
             
-            child.countVisited.getAndIncrement()
-            if winner == player { child.countWon.getAndIncrement() }
+            child.countVisited.increment()
+            if winner == player { child.countWon.increment() }
         }
         
-        self.countVisited.getAndIncrement()
-        if winner == player { self.countWon.getAndIncrement() }
+        self.countVisited.increment()
+        if winner == player { self.countWon.increment() }
         
         return winner
     }

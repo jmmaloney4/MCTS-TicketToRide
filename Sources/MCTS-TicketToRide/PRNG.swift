@@ -11,7 +11,7 @@ import Concurrency
 
 typealias RNG = SystemRandomNumberGenerator
 
-private var RNG_OFFSET: AtomicInt = AtomicInt(initialValue: 0)
+private var RNG_OFFSET: AtomicInt = AtomicInt(0)
 
 func makeRNG() -> RNG {
     // return Gust(offset: UInt32(RNG_OFFSET.incrementAndGet()))
