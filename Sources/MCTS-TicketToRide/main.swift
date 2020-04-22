@@ -51,7 +51,7 @@ struct MCTS: ParsableCommand {
         var mcts_count: Int = 0
         players.forEach {
             switch $0 {
-            case "m": p.append(.mcts(iters[mcts_count], explore)); mcts_count += 1
+            case "m": p.append(.mcts(iters[mcts_count], (explore / Double(players.count)) )); mcts_count += 1
             case "r": p.append(.random)
             case "b": p.append(.big)
             default: fatalError()
@@ -60,13 +60,12 @@ struct MCTS: ParsableCommand {
         
         var times: [TimeInterval] = []
         var wins: [Int] = Array(repeating: 0, count: p.count)
-        for k in 0..<games {
+        for _ in 0..<games {
             let start = Date()
             let game = try Game(board: board, deck: Deck(), rules: rules, players: p)
             let w = try! game.start()
             times.append(Date().timeIntervalSince(start))
             wins[w] += 1
-            // print("Winner in \(times[k])s (\(k)/\(games): \(w) (\(game.players[w].type))")
         }
         
         print(p)

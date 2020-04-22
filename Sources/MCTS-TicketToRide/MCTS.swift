@@ -24,8 +24,7 @@ class MCTSAIPlayerInterface: Player {
         self.tree = MCTSTree(state, forPlayer: player)
         self.player = player
         self.iterations = iterations
-        self.uctExploreConstant = explore / Double(state.players.count)
-        print("MCTS Initialized - \(self.iterations) \(self.uctExploreConstant)")
+        self.uctExploreConstant = explore
     }
     
     func takeTurn(game: Game) throws -> TurnAction {
