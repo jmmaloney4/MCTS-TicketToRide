@@ -29,16 +29,17 @@ class MCTSAIPlayerInterface: Player {
     }
     
     func takeTurn(game: Game) throws -> TurnAction {
-        let latch = CountDownLatch(count: self.iterations)
+        let group = DispatchGroup()
         for _ in 0..<self.iterations {
             interfaceTimer = Date()
+            group.enter()
             DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
                 try! self.tree.runSimulation(rng: &rng, explore: self.uctExploreConstant)
-                latch.countDown()
+                group.leave()
             }
         }
-        latch.await()
+        group.wait()
         return self.tree.pickMove()
     }
     
