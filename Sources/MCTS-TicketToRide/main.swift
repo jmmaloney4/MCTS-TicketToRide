@@ -1,6 +1,7 @@
 import ArgumentParser
 import PathKit
 import Dispatch
+import Foundation
 
 struct MCTS: ParsableCommand {
     // Customize your command's help and subcommands by implementing the
@@ -41,23 +42,8 @@ struct MCTS: ParsableCommand {
 
     func run() throws {
         let board = try Board(fromFile: Path(path))
-        print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
-        print(board.allTracks().count)
-        
-        var a = AtomicInt()
-        print(a.incrementAndGet())
-        DispatchQueue.global().async {
-            print(a.incrementAndGet())
-        }
-        DispatchQueue.global().async {
-            print(a.incrementAndGet())
-        }
-        DispatchQueue.global().async {
-            print(a.incrementAndGet())
-        }
-        DispatchQueue.global().async {
-            print(a.incrementAndGet())
-        }
+        // print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
+        // print(board.allTracks().count)
         
         let rules = Rules(initialHandCount: 4, initialTraincarCount: traincars, traincarCutoff: 3)
         
@@ -72,15 +58,20 @@ struct MCTS: ParsableCommand {
             }
         }
         
+        var times: [TimeInterval] = []
         var wins: [Int] = Array(repeating: 0, count: p.count)
-        for _ in 0..<games {
+        for k in 0..<games {
+            let start = Date()
             let game = try Game(board: board, deck: Deck(), rules: rules, players: p)
             let w = try! game.start()
+            times.append(Date().timeIntervalSince(start))
             wins[w] += 1
+            // print("Winner in \(times[k])s (\(k)/\(games): \(w) (\(game.players[w].type))")
         }
         
         print(p)
         print(wins)
+        print(times)
         
     }
 }

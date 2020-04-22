@@ -24,22 +24,22 @@ class MCTSAIPlayerInterface: Player {
         self.tree = MCTSTree(state, forPlayer: player)
         self.player = player
         self.iterations = iterations
-        self.uctExploreConstant = explore
+        self.uctExploreConstant = explore / Double(state.players.count)
         print("MCTS Initialized - \(self.iterations) \(self.uctExploreConstant)")
     }
     
     func takeTurn(game: Game) throws -> TurnAction {
         let latch = CountDownLatch(count: self.iterations)
-        for k in 0..<self.iterations {
+        for _ in 0..<self.iterations {
             interfaceTimer = Date()
-            DispatchQueue.global(qos: .default).sync {
+            DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
-                synchronized(self) {
-                    if abs(self.interfaceTimer.timeIntervalSinceNow) >= 0.0 {
-                        self.interfaceTimer = Date()
-                        print(k)
-                    }
-                }
+//                synchronized(self) {
+//                    if abs(self.interfaceTimer.timeIntervalSinceNow) >= 5.0 {
+//                        self.interfaceTimer = Date()
+//                        print(k)
+//                    }
+//                }
                 
                 try! self.tree.runSimulation(rng: &rng, explore: self.uctExploreConstant)
                 latch.countDown()
@@ -91,6 +91,8 @@ class MCTSNode {
     fileprivate(set) var countVisited: AtomicInt = AtomicInt(0)
     fileprivate(set) var countWon: AtomicInt = AtomicInt(0)
     
+    fileprivate var lock: NSLock = NSLock()
+    
     init(withState state: State) {
         self.state = state
     }
@@ -105,7 +107,7 @@ class MCTSNode {
     // https://dke.maastrichtuniversity.nl/m.winands/documents/Encyclopedia_MCTS.pdf
     func computeUCT(explore C: Double) -> [TurnAction:Double] {
         var rv: [TurnAction:Double] = [:]
-        synchronized(self) {
+        synchronized(self.lock) {
             let moves = state.getLegalMoves()
             for move in moves {
                 var expected: Double
@@ -159,7 +161,7 @@ class MCTSNode {
         
         var child: MCTSNode!
         var exit: AtomicBool = AtomicBool(false)
-        try synchronized(self) {
+        try synchronized(self.lock) {
             let exantChild = self.children[action]
             if exantChild != nil {
                 child = exantChild!

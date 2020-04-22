@@ -75,7 +75,6 @@ class Board: CustomStringConvertible {
     }
     
     private func insertTrack(cities input: [City], length: Int, color: Color) throws {
-        print("Inserting Track: \(input), \(length), \(color)")
         let indicies = input.map({Int(cities.firstIndex(of: $0)!)})
         if matrix[indicies[0]][indicies[1]] == nil {
             matrix[indicies[0]][indicies[1]] = MatrixEntry(length: length, colors: [color])

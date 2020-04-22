@@ -49,14 +49,13 @@ class Game {
     func start() throws -> Int {
         while !self.state.gameOver {
             let (action, state) = self.state.asResultOfAction( try self.players[self.state.player()].takeTurn(game: self))
-            print("Player (\(self.players[self.state.player()].type)) \(self.state.player()): \(action)")
+            // print("Player (\(self.players[self.state.player()].type)) \(self.state.player()): \(action)")
             self.state = state
             for p in players {
                 try p.update(game: self, player: self.state.player(), action: action)
             }
         }
         let winner = self.state.calculateWinner()
-        print("Winner: \(winner) (\(self.players[winner].type))")
         return winner
     }
 }

@@ -8,34 +8,34 @@
 import Foundation
 import Dispatch
 
-func synchronized<T>(_ lock: AnyObject, _ body: () throws -> T) rethrows -> T {
-    objc_sync_enter(lock)
-    defer { objc_sync_exit(lock) }
+func synchronized<T>(_ lock: NSLock, _ body: () throws -> T) rethrows -> T {
+    lock.lock()
+    defer { lock.unlock() }
     return try body()
 }
 
 struct Atomic<T> {
     private var _value: T
-    private var _lock: DispatchSemaphore
+    private var lock: NSLock
     
     init(_ initialValue: T) {
         _value = initialValue
-        _lock = DispatchSemaphore(value: 0)
-        defer {_lock.signal() }
+        lock = NSLock()
+        defer { lock.unlock() }
     }
     
     var value: T {
         get {
-            _lock.wait()
-            defer { _lock.signal() }
+            lock.lock()
+            defer { lock.unlock() }
             return self._value
         }
     }
     
     @discardableResult
     mutating func getAndSet(_ newValue: T) -> T {
-        _lock.wait()
-        defer { _lock.signal() }
+        lock.lock()
+        defer { lock.unlock() }
         let rv = self._value
         self._value = newValue
         return rv
@@ -48,21 +48,21 @@ extension Atomic where T == Int {
     }
     
     mutating func incrementAndGet() -> Int {
-        _lock.wait()
-        defer { _lock.signal() }
+        lock.lock()
+        defer { lock.unlock() }
         _value += 1
         return _value
     }
     
     mutating func increment() {
-        _lock.wait()
-        defer { _lock.signal() }
+        lock.lock()
+        defer { lock.unlock() }
         _value += 1
     }
     
     mutating func decrementAndGet() -> Int {
-        _lock.wait()
-        defer { _lock.signal() }
+        lock.lock()
+        defer { lock.unlock() }
         _value -= 1
         return _value
     }
