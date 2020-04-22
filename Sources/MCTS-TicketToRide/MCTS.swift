@@ -34,13 +34,6 @@ class MCTSAIPlayerInterface: Player {
             interfaceTimer = Date()
             DispatchQueue.global(qos: .default).async {
                 var rng = makeRNG()
-//                synchronized(self) {
-//                    if abs(self.interfaceTimer.timeIntervalSinceNow) >= 5.0 {
-//                        self.interfaceTimer = Date()
-//                        print(k)
-//                    }
-//                }
-                
                 try! self.tree.runSimulation(rng: &rng, explore: self.uctExploreConstant)
                 latch.countDown()
             }
