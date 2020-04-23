@@ -60,21 +60,28 @@ struct MCTS: ParsableCommand {
             }
         }
         
+        print("------- START RUN DATA ------------------")
+        
         var times: [TimeInterval] = []
         var wins: [Int] = Array(repeating: 0, count: p.count)
-        for _ in 0..<games {
+        for k in 0..<games {
             let start = Date()
             let game = try Game(board: board, deck: Deck(), rules: rules, players: p)
             let w = try! game.start()
-            times.append(Date().timeIntervalSince(start))
+            let time = Date().timeIntervalSince(start)
+            times.append(time)
             wins[w] += 1
+            print([k, w, time].map({ "\($0)" }).joined(separator: ","))
         }
         
-        print("------- RUN DATA ------------------")
+        print("------- END CSV DATA ------------------")
+        
         print("Players:", p)
         print("Wins:", wins)
         print("Total Games:", games)
         print("Times:", times)
+        
+        print("------- END RUN DATA ------------------")
     }
 }
 
