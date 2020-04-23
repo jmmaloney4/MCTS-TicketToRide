@@ -27,8 +27,8 @@ time swift run TTR ./east.json 25 3000 bbbbb 1.0 >> bvb.out
 time swift run TTR ./east.json 25 3000 bbbbbb 1.0 >> bvb.out
 time swift run TTR ./east.json 25 3000 bbbbbbb 1.0 >> bvb.out
 
-time swift run TTR ./east.json 25 50 brrm 100000 1.0 >> fun.out
-time swift run TTR ./east.json 25 50 brrm 100000 0.8 >> fun.out
+time swift run TTR ./east.json 25 50 brrm 1.0 100000 >> fun.out
+time swift run TTR ./east.json 25 50 brrm 0.8 100000 >> fun.out
 
 elif [ $1 == "3" ]; then
 time swift run TTR ./east.json 25 40 mm 1.0 $ITERS $ITERS >> mvm.out
