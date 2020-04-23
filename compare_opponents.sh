@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ITERS=1000
+
 if [ $1 == "1" ]; then
 time swift run TTR ./east.json 25 3000 rr 1.0 >> rvr.out
 time swift run TTR ./east.json 25 3000 rrr 1.0 >> rvr.out
@@ -17,7 +19,6 @@ time swift run TTR ./east.json 25 3000 bbbbbb 1.0 >> rvr.out
 time swift run TTR ./east.json 25 3000 bbbbbbb 1.0 >> rvr.out
 
 elif [ $1 == "3" ]; then
-ITERS=1000
 time swift run TTR ./east.json 25 300 mm 1.0 $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmm 1.0 $ITERS $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmmm 1.0 $ITERS $ITERS $ITERS $ITERS >> rvr.out
