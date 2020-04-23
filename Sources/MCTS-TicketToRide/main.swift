@@ -62,6 +62,8 @@ struct MCTS: ParsableCommand {
             }
             
             let out = Path(self.out)
+            try "# MCTS: \(self.iters) \(self.explore)".appendLineToURL(fileURL: out.url)
+            try "# PLAYERS: \(p)".appendLineToURL(fileURL: out.url)
             try "GAME,PLAYERS,WINNER,TIME".appendLineToURL(fileURL: out.url)
             
             var times: [TimeInterval] = []
