@@ -10,14 +10,14 @@ time swift run TTR ./east.json 25 3000 rrrrr 1.0 >> rvr.out
 time swift run TTR ./east.json 25 3000 rrrrrr 1.0 >> rvr.out
 time swift run TTR ./east.json 25 3000 rrrrrrr 1.0 >> rvr.out
 
-time swift run TTR ./east.json 25 80 brrm $ITERS 0.5 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 0.8 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 0.9 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 1.0 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 1.1 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 1.2 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 1.5 >> exp.out
-time swift run TTR ./east.json 25 80 brrm $ITERS 2.0 >> exp.out
+time swift run TTR ./east.json 25 80 brrm 0.5 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 0.8 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 0.9 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 1.0 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 1.1 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 1.2 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 1.5 $ITERS >> exp.out
+time swift run TTR ./east.json 25 80 brrm 2.0 $ITERS >> exp.out
 
 elif [ $1 == "2" ]; then
 time swift run TTR ./east.json 25 3000 bb 1.0 >> bvb.out
