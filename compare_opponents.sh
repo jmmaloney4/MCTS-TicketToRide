@@ -17,11 +17,18 @@ time swift run TTR ./east.json 25 3000 bbbbbb 1.0 >> rvr.out
 time swift run TTR ./east.json 25 3000 bbbbbbb 1.0 >> rvr.out
 
 elif [ $1 == "3" ]; then
-ITERS=500
+ITERS=1000
 time swift run TTR ./east.json 25 300 mm 1.0 $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmm 1.0 $ITERS $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmmm 1.0 $ITERS $ITERS $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmmmm 1.0 $ITERS $ITERS $ITERS $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmmmmm 1.0 $ITERS $ITERS $ITERS $ITERS $ITERS $ITERS >> rvr.out
 time swift run TTR ./east.json 25 300 mmmmmmm 1.0 $ITERS $ITERS $ITERS $ITERS $ITERS $ITERS $ITERS >> rvr.out
+
+elif [ $1 == "4" ]; then
+time swift run TTR ./east.json 25 3000 mrrr 1.0 $ITERS >> rvr.out
+time swift run TTR ./east.json 25 3000 rmrr 1.0 $ITERS >> rvr.out
+time swift run TTR ./east.json 25 3000 rrmr 1.0 $ITERS >> rvr.out
+time swift run TTR ./east.json 25 3000 rrrm 1.0 $ITERS >> rvr.out
+
 fi
