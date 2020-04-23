@@ -142,10 +142,11 @@ struct State: Equatable {
     }
     
     func calculateWinner() -> Int {
-        var points: [Int] = Array(repeating: 0, count: self.players.count)
-        for (k, p) in self.players.enumerated() {
-            points[k] += p.tracksOwned.reduce(0, { $0 + $1.points()! })
-        }
+        var points: [Int] = self.players.map({ $0.tracksOwned.reduce(0, { $0 + $1.points()! }) })
+        let trackLengths: [Int] = self.players.map({ $0.tracksOwned.reduce(0, { $0 + $1.length }) })
+        let max = trackLengths.max()!
+        let longest = trackLengths.enumerated().filter({ $0.element == max })
+        longest.forEach({ points[$0.offset] += 10 })
         return points.firstIndex(of: points.max()!)!
     }
 }

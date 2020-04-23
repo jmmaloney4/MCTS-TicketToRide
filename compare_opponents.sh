@@ -3,12 +3,12 @@
 ITERS=1000
 
 if [ $1 == "1" ]; then
-time swift run TTR ./east.json 25 3000 rr 1.0 rvr2.csv >> rvr.out
-time swift run TTR ./east.json 25 3000 rrr 1.0 rvr3.csv >> rvr.out
-time swift run TTR ./east.json 25 3000 rrrr 1.0 rvr4.csv >> rvr.out
-time swift run TTR ./east.json 25 3000 rrrrr 1.0 rvr5.csv >> rvr.out
-time swift run TTR ./east.json 25 3000 rrrrrr 1.0 rvr6.csv >> rvr.out
-time swift run TTR ./east.json 25 3000 rrrrrrr 1.0 rvr7.csv >> rvr.out
+time swift run TTR ./east.json 25 3000 rr 1.0 -o rvr2.csv >> rvr.out
+time swift run TTR ./east.json 25 3000 rrr 1.0 -o  rvr3.csv >> rvr.out
+time swift run TTR ./east.json 25 3000 rrrr 1.0 -o  rvr4.csv >> rvr.out
+time swift run TTR ./east.json 25 3000 rrrrr 1.0 -o  rvr5.csv >> rvr.out
+time swift run TTR ./east.json 25 3000 rrrrrr 1.0 -o  rvr6.csv >> rvr.out
+time swift run TTR ./east.json 25 3000 rrrrrrr 1.0 -o  rvr7.csv >> rvr.out
 
 time swift run TTR ./east.json 25 80 brrm 0.5 $ITERS exp0.5.csv >> exp.out
 time swift run TTR ./east.json 25 80 brrm 0.8 $ITERS exp0.8.csv >> exp.out

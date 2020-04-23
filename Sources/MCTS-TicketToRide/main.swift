@@ -39,13 +39,12 @@ struct MCTS: ParsableCommand {
     
     @Argument(help: "MCTS Iterations")
     var iters: [Int]
+    
+    @Option(name: .shortAndLong, help: "CSV file")
+    var out: String
 
     func run() throws {
         let board = try Board(fromFile: Path(path))
-        // print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
-        // print(board.allTracks().count)
-        
-        // print(board.allTracks().reduce(0, { return $0 + $1.length }))
         
         let rules = Rules(initialHandCount: 4, initialTraincarCount: traincars, traincarCutoff: 3)
         
@@ -59,8 +58,9 @@ struct MCTS: ParsableCommand {
             default: fatalError()
             }
         }
-        
-        print("------- START RUN DATA ------------------")
+
+        let out = Path(self.out)
+        try out.write("GAME,WINNER,TIME\n")
         
         var times: [TimeInterval] = []
         var wins: [Int] = Array(repeating: 0, count: p.count)
@@ -71,11 +71,11 @@ struct MCTS: ParsableCommand {
             let time = Date().timeIntervalSince(start)
             times.append(time)
             wins[w] += 1
-            print([k, w, time].map({ "\($0)" }).joined(separator: ","))
+            try [k, w, time].map({ "\($0)" }).joined(separator: ",").appendLineToURL(fileURL: out.url)
         }
         
-        print("------- END CSV DATA ------------------")
-        
+        print("------- START RUN DATA ------------------")
+
         print("Players:", p)
         print("Wins:", wins)
         print("Total Games:", games)
@@ -86,3 +86,30 @@ struct MCTS: ParsableCommand {
 }
 
 MCTS.main()
+
+extension String {
+   func appendLineToURL(fileURL: URL) throws {
+        try (self + "\n").appendToURL(fileURL: fileURL)
+    }
+
+    func appendToURL(fileURL: URL) throws {
+        let data = self.data(using: String.Encoding.utf8)!
+        try data.append(fileURL: fileURL)
+    }
+}
+
+extension Data {
+    func append(fileURL: URL) throws {
+        if let fileHandle = FileHandle(forWritingAtPath: fileURL.path) {
+            defer {
+                fileHandle.synchronizeFile()
+                fileHandle.closeFile()
+            }
+            fileHandle.seekToEndOfFile()
+            fileHandle.write(self)
+        }
+        else {
+            try write(to: fileURL, options: .atomic)
+        }
+    }
+}

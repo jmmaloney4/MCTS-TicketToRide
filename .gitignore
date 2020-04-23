@@ -5,6 +5,7 @@
 xcuserdata/
 .vagrant/
 *.out
+*.csv
 
 LitReview.pdf
 Paper.pdf
