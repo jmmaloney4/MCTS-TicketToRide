@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sudo apt-get update
-sudo apt-get install clang
+sudo apt-get install -y clang llvm
 
 eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
 which swift
