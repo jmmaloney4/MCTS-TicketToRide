@@ -7,8 +7,8 @@ eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
 which swift
 swift --version
 
-echo 'export SWIFTENV_ROOT="$HOME/.swiftenv"' >> ~/.bash_profile
-echo 'export PATH="$SWIFTENV_ROOT/bin:$PATH"' >> ~/.bash_profile
-echo 'eval "$(swiftenv init -)"' >> ~/.bash_profile
+echo 'export SWIFTENV_ROOT="$HOME/.swiftenv"' >> ~/.bashrc
+echo 'export PATH="$SWIFTENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(swiftenv init -)"' >> ~/.bashrc
 
-source ~/.bash_profile
+source ~/.bashrc
