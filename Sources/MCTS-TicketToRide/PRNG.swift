@@ -7,15 +7,18 @@
 
 import Foundation
 import Squall
+import PSWyhash
 
-typealias RNG = SystemRandomNumberGenerator
+typealias RNG = WyRandomGenerator
 
 private var RNG_OFFSET: AtomicInt = AtomicInt(0)
 
 func makeRNG() -> RNG {
     // return Gust(offset: UInt32(RNG_OFFSET.incrementAndGet()))
-    return SystemRandomNumberGenerator()
+    // return SystemRandomNumberGenerator()
     // return PRNG(RNG_OFFSET.incrementAndGet())
+    // return WyRand(seed: UInt64(RNG_OFFSET.incrementAndGet()) + UInt64(Date().timeIntervalSince1970.rounded()))
+    return WyRandomGenerator(seed: UInt64(RNG_OFFSET.incrementAndGet()) + UInt64(Date().timeIntervalSince1970.rounded()))
 }
 
 private let P: UInt64 = 514229;
@@ -35,7 +38,7 @@ func gcd(_ A: UInt64, B: UInt64) -> UInt64 {
     return a;
 }
 
-class PRNG: RandomNumberGenerator {
+struct PRNG: RandomNumberGenerator {
     var prev: UInt64
     init(_ offset: Int) {
         var seed = UInt64((Date().timeIntervalSinceReferenceDate)) + UInt64(offset)
@@ -45,20 +48,20 @@ class PRNG: RandomNumberGenerator {
         self.prev = seed
     }
     
-    public func next() -> UInt64 {
+    public mutating func next() -> UInt64 {
         var x = self.prev
         x = x.multipliedReportingOverflow(by: x).partialValue
         x = x.remainderReportingOverflow(dividingBy: M).partialValue
         self.prev = x
-        // print(self.prev)
+        print(self.prev)
         return self.prev
     }
     
-    public func next<T>() -> T where T : FixedWidthInteger, T : UnsignedInteger {
+    public mutating func next<T>() -> T where T : FixedWidthInteger, T : UnsignedInteger {
         return T(self.next())
     }
     
-    public func next<T>(upperBound: T) -> T where T : FixedWidthInteger, T : UnsignedInteger {
+    public mutating func next<T>(upperBound: T) -> T where T : FixedWidthInteger, T : UnsignedInteger {
         return T(self.next()).remainderReportingOverflow(dividingBy: upperBound).partialValue
     }
 }
