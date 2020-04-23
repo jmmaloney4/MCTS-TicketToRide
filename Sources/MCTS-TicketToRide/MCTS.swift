@@ -218,6 +218,7 @@ class BigTrackAIPlayerInterface: Player {
     
     func takeTurn(game: Game) throws -> TurnAction {
         let tracks = game.state.unownedTracks()
+        guard tracks.count > 0 else { return .draw(.unspecified) }
         let max = tracks.map({ $0.length }).max()!
         let big = tracks[tracks.firstIndex(where: { $0.length == max })!]
         let moves = game.state.getLegalMoves()
