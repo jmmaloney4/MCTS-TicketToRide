@@ -45,6 +45,8 @@ struct MCTS: ParsableCommand {
         // print(board.allTracks().map({ $0.description }).joined(separator: "\n"))
         // print(board.allTracks().count)
         
+        // print(board.allTracks().reduce(0, { return $0 + $1.length }))
+        
         let rules = Rules(initialHandCount: 4, initialTraincarCount: traincars, traincarCutoff: 3)
         
         var p: [PlayerType] = []
@@ -68,10 +70,11 @@ struct MCTS: ParsableCommand {
             wins[w] += 1
         }
         
-        print(p)
-        print(wins)
-        print(times)
-        
+        print("------- RUN DATA ------------------")
+        print("Players:", p)
+        print("Wins:", wins)
+        print("Total Games:", games)
+        print("Times:", times)
     }
 }
 

@@ -4,6 +4,7 @@
 /*.xcodeproj
 xcuserdata/
 .vagrant/
+*.out
 
 LitReview.pdf
 Paper.pdf
