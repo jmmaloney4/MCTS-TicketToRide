@@ -173,7 +173,7 @@ class MCTSNode {
                 let move = moves.randomElement(using: &rng)!
                 (_, state) = state.asResultOfAction(move)
             }
-            winner = state.calculateWinner()
+            winner = state.calculateWinner().0
             
             child.countVisited.increment()
             if winner == player { child.countWon.increment() }

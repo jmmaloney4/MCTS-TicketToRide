@@ -64,18 +64,21 @@ struct MCTS: ParsableCommand {
             let out = Path(self.out)
             try "# MCTS: \(self.iters) \(self.explore)".appendLineToURL(fileURL: out.url)
             try "# PLAYERS: \(p)".appendLineToURL(fileURL: out.url)
-            try "GAME,PLAYERS,WINNER,TIME".appendLineToURL(fileURL: out.url)
+            try ("GAME,WINNER,TIME," + p.map({ "\($0)" }).joined(separator: ",")).appendLineToURL(fileURL: out.url)
             
             var times: [TimeInterval] = []
             var wins: [Int] = Array(repeating: 0, count: p.count)
             for k in 0..<games {
                 let start = Date()
                 let game = try Game(board: board, deck: Deck(), rules: rules, players: p)
+                
                 let w = try! game.start()
+                
                 let time = Date().timeIntervalSince(start)
                 times.append(time)
-                wins[w] += 1
-                try [k, players, w, time].map({ "\($0)" }).joined(separator: ",").appendLineToURL(fileURL: out.url)
+                wins[w.0] += 1
+                
+                try ([k, w.0, time] + w.3).map({ "\($0)" }).joined(separator: ",").appendLineToURL(fileURL: out.url)
             }
             
             print("------- START RUN DATA ------------------")
