@@ -1,0 +1,4 @@
+# MCTS: [15] [1.0]
+# PLAYERS: [MCTS_TicketToRide.PlayerType.mcts(15, 0.5), MCTS_TicketToRide.PlayerType.random]
+GAME,PLAYERS,WINNER,TIME
+0,mr,0,14.105885028839111
