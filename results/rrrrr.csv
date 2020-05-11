@@ -1,5 +1,3 @@
-# MCTS: [] []
-# PLAYERS: [MCTS_TicketToRide.PlayerType.random, MCTS_TicketToRide.PlayerType.random, MCTS_TicketToRide.PlayerType.random, MCTS_TicketToRide.PlayerType.random, MCTS_TicketToRide.PlayerType.random]
 GAME,WINNER,TIME,random,random,random,random,random
 0,0,0.6038709878921509,43,18,22,20,28
 1,1,0.5032309293746948,25,43,21,20,21

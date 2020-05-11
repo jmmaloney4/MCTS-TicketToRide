@@ -1,5 +1,3 @@
-# MCTS: [] []
-# PLAYERS: [MCTS_TicketToRide.PlayerType.big, MCTS_TicketToRide.PlayerType.big]
 GAME,WINNER,TIME,big,big
 0,0,0.1570819616317749,59,36
 1,1,0.18773603439331055,43,59

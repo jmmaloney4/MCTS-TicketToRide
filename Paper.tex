@@ -1,6 +1,5 @@
-\title{Monte Carlo Tree Search Applied to \textit{Ticket to Ride}}
+\title{Monte-Carlo Tree Search Applied to \textit{\textit{Ticket to Ride}}}
 \author{Jack Maloney\footnote{University of Minnesota, College of Science and Engineering, Class of 2023}}
-\date{}
 \documentclass[11pt, letterpaper, twoside]{article}
 \usepackage[utf8]{inputenc}
 
@@ -10,28 +9,38 @@
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{fullpage}
+\usepackage{caption}
+\usepackage{subcaption}
 
 \usepackage{setspace}
 \singlespacing
 
 % No Page Number
-\pagenumbering{gobble}
+% \pagenumbering{gobble}
 
 \begin{document}
 
 \maketitle
 
+\begin{abstract}
+	Games are important tools for developing Artificial Intelligence systems, because they are well defined and generalize an important computational and intellectual skill. In this paper we explore the ability of Monte-Carlo Tree Search to play \textit{Ticket to Ride}, a board game centered around collecting resources and planning how to build tracks. Monte-Carlo Tree Search has been successfully applied to other board games similar to \textit{Ticket to Ride}, such as \textit{Settlers of Catan}, and other games less similar to \textit{Ticket to Ride} including Chess and Poker. We compare Monte-Carlo Tree Search to an agent which selects random moves and an agent who attempts to always build the longest track available on the board, as well as the difference between Monte-Carlo Tree Search agents run with different number of iterations and different exploration constants. Our results show that MCTS is a viable strategy for playing \textit{Ticket to Ride}, however more research is needed on the details of the best exploration constant, and on the effect of added iterations to the success of the algorithm.
+\end{abstract}
+
 \section{Introduction}
 
-Monte Carlo Tree Search (MCTS) \cite{mcts_inaugural} is an anytime algorithm for efficient decision making in large state spaces, or for domains with incomplete or stochastic information, and many other places. Since its inception, MCTS has received a huge amount of attention from the AI community, because of its success tackling problems which have been intractable with other forms of heuristic search for decades. Most notable of these successes is AlphaGo's \cite{alphago} 2016 triumph over Lee Sedol. Sedol was an 18-time Go world champion when he was defeated. The technique has since been applied to many other games, including Chess, Shogi \cite{chess_shogi_self_play}, Settlers of Catan \cite{mcts_settlers}, Poker, and Total War: Rome II. Many variations to the technique have appeared to handle different resource limitations, and different levels of state observability. In the following sections we outline some of these developments and their applicability and implications for our study on Ticket to Ride.
+Monte-Carlo Tree Search (MCTS) \cite{mcts_inaugural} is an anytime algorithm for efficient decision making in large state spaces, or for domains with incomplete or stochastic information, and many other places. Since its inception, MCTS has received a huge amount of attention from the AI community, because of its success tackling problems which have been intractable with other forms of heuristic search for decades. Most notable of these successes is AlphaGo's \cite{alphago} 2016 triumph over Lee Sedol. Sedol was an 18-time Go world champion when he was defeated. The technique has since been applied to many other games, including Chess, Shogi \cite{chess_shogi_self_play}, \textit{Settlers of Catan} \cite{mcts_settlers}, Poker, and \textit{Total War: Rome II}. Many variations to the technique have appeared to handle different resource limitations, and different levels of state observability. In the following sections we outline some of these developments and their applicability and implications for our study on \textit{Ticket to Ride}.
+
+\section{Motivation}
+
+Board games are a popular application for Artificial Intelligence for a number of reasons. Board games have a well defined state, well defined rules, and usually require some ability to reason and predict in order to play them well. They can sometimes abstract important aspects of real world scenarios into more manageable and computable chunks. In our opinion, \textit{Ticket to Ride} is particularly interesting because it only allows each player one move per turn, as opposed to other board games which typically allow a player to exhaust all available moves before turning over control to the next player. This makes \textit{Ticket to Ride} more closely resemble a real-time strategy situation, if one makes the assumption that each available move takes approximately equal time. This is especially interesting because of the fact that MCTS is an anytime algorithm, and thus is especially suited for real-time applications. \textit{Ticket-to-Ride} is also interesting because of its focus on the board graph, and the need to build a contiguous tracks in an adversarial environment. This gives agents the ability to disrupt opponents tracks, and even trap them in a part of the board. This has potentially interesting applications to strategic situations beyond \textit{Ticket-to-Ride}.
+
+\section{Overview of Monte Carlo Tree Search}
 
 \begin{figure}
   \includegraphics[width=\linewidth]{Refrences/MCTS_Phases.png}
   \caption{Outline of Monte Carlo Tree Search \cite{mcts_survey}.}
   \label{fig:mcts_outline}
 \end{figure}
-
-\section{Overview of Monte Carlo Tree Search}
 
 Monte Carlo Tree Search operates on a tree of possible future game states, which are reachable from legal actions. MCTS differs from other complete heuristic searches (A*, IDS, etc) by sampling various paths through the tree, instead of searching the entire tree. A decision is then made based on the average payoffs of each decision.
  
@@ -66,7 +75,136 @@ The effectiveness of node selection is determined by the selection strategy. One
 	where $\bar{X_i}$ is the expected payoff of child $i$; $n_p$ is the number of times the parent node, $p$, has been visited; $n_i$ is the number of times the child node $i$ has been visited. $C > 0$ is a constant which controls the algorithm's tendency for exploration vs exploitation.
 
 \subsection{Simulation}
-	The simulation phase constitutes the majority of the algorithm. After a node has been selected, the game is played out from that state via a default strategy until the end. The most important consideration of this phase is the strategy used to approximate the actions of the friendly player and the opposing player(s). Ideally, this strategy will be a fairly accurate representation of the way an actual game will proceed, however, it ought to be a very computationally inexpensive strategy, as otherwise the computational resource limit will be reached before many paths have been explored. The approach typically used in the literature \cite{mcts_settlers} \cite{mmcts} is either a uniformly random strategy, or a simple weighted distribution based on a simple heuristic such as belief sampling \cite{belief_sampling} \cite{large_belief_states}. The random sampling may not immediately seem like a useful strategy, however, because of its speed, it allows a greater number of simulations to be run with the same computational resources, which is ultimately the most important factor in the success of MCTS.
+The simulation phase constitutes the majority of the algorithm. After a node has been selected, the game is played out from that state via a default strategy until the end. The most important consideration of this phase is the strategy used to approximate the actions of the friendly player and the opposing player(s). Ideally, this strategy will be a fairly accurate representation of the way an actual game will proceed, however, it ought to be a very computationally inexpensive strategy, as otherwise the computational resource limit will be reached before many paths have been explored. The approach typically used in the literature \cite{mcts_settlers} \cite{mmcts} is either a uniformly random strategy, or a simple weighted distribution based on a simple heuristic such as belief sampling \cite{belief_sampling} \cite{large_belief_states}. The random sampling may not immediately seem like a useful strategy, however, because of its speed, it allows a greater number of simulations to be run with the same computational resources, which is ultimately the most important factor in the success of MCTS.
+
+\section{The Game: \textit{\textit{Ticket to Ride}}}
+
+\begin{figure}
+\begin{center}
+  \includegraphics[scale=0.38]{Refrences/TTR_Europe_Board}
+  \caption{\textit{Ticket to Ride} Europe Board \cite{ttr_ai}.}
+  \label{fig:ttr_europe}
+ \end{center}
+\end{figure}
+
+\textit{Ticket to Ride} \cite{TTR} is a board game centered around collecting resources to build tracks, and subsequently building said tracks. The specific version this project was based on is the Europe version of the game, however much of the more complicated rules have been omitted in our implementation for time and simplicity reasons. 
+
+\subsection{The Board}
+
+The board (Figure \ref{fig:ttr_europe}) used in the standard Europe map is quite large, and as such each simulation takes quite a long time to complete, slowing the algorithm, and our tests, significantly. Thus, we opted to use a modified board, incorporating a most of the eastern half of the standard map. Specifically the map contained all of the following cities, and all the tracks connecting them present on the default Europe board: Berlin, Budapest, Kyiv, Warszawa, Bucuresti, Constantinople, Essen, Sevastopol, Wilno, Athina, Kobenhavn, Petrograd, Sarajevo, Smyrna, Danzic, Erzurum, Kharkov, Moskva, Rostov, Sochi, Smolensk, Rica, Angora, Sofia, Stockholm, and Wien. This choice was made because contains a reasonable variety of track lengths, and because it doesn't reduce the length of the game too much, which increases the effect of lucky card draws and reduces the effect of skilled play, which undermines the performance of MCTS, and is ultimately a less interesting endeavor.
+
+\subsection{The Deck}
+
+The original Europe game has 110 train cars, twelve each of seven different colored cards, plus fourteen wildcards. Typically the cards are drawn from the deck but discarded into a discard pile and only reshuffled once the deck is empty (or at the discretion of the human players). This has an interesting effect on the potential probabilities of particular game states, e.g. if a player has 6 red cards in his or her hand the probability of drawing another red card is potentially lower than it was at the beginning of the game. In order to faithfully and fairly track this information through each MCTS simulation, however, would have added significant complexity to the implementation, and so we chose to simply implement a fixed, uniformly distributed deck, and to entirely omit the function of wildcards (which also complicate other aspects, such as purchasing tracks), and are nonessential to the game. Thus, there is no state to keep track of. Every time an agent draws a card the distribution is uniform over all seven colors.
+
+\subsection{Initial Game Conditions}
+
+Each player begins the game with a set number of train-cars and an initial deck, drawn randomly from the deck. Typically, the Europe game rules specify 45 train-cars per person, and an initial hand of four cards. 45 train-cars proved to make the game take far too long given the computational power available, thus we used 25 train-cars, and the smaller map mentioned above. 
+
+\subsection{Game Rules}
+
+Every turn, a player is allowed one and only one move; build a track, if the player has the resources to do so, or draw a random card. The tracks are worth significantly more the longer they are, i.e. a one length track is worth one point, a two length track is worth two points, a three length track is worth four points, a four length track is worth seven points, a six length track is worth fifteen points, and an eight length track is worth twenty-one points. After players make their choice, their turn is over. 
+
+\subsubsection{Destinations}
+
+We did not add the destinations mechanic to the game, due to the time constrains initially posed on the project. This is of significant interest for the author to add in the future. 
+
+
+\subsection{End of the Game}
+
+Once a player has less than a specific threshold of train-cars left---as a result of purchasing a track---each of the other players takes one more turn, and then the game is over. In our case, the threshold was less than or equal to two train-cars remaining.
+
+\subsection{Calculating the Winner}
+
+After the game ends, points for the tracks players own are totaled. Then the player with the most track segments owned is awarded an extra ten points. Typically there is a ten point bonus for having the longest contiguous track, however, due to time concerns, this simplification was made. The winner is the player with the most total points, from tracks and the end of game bonus.
+
+\section{Experimental Setup}
+
+The experiments were mostly run on a Digital Ocean droplet, with 16 cores, to increase the number of iterations which could be run in a reasonable amount of time. This was done with the program packaged into a docker container\footnote{The docker image used is available at: https://hub.docker.com/repository/docker/jmmaloney4/ttr. A volume will have to be mounted in order to save the output outside the container. }. This was done to make distributing the binaries to the virtual machines easy an to keep the program running in the background while the terminal was closed. A number of combinations of player types, number of players, Monte-Carlo iterations, and exploration constants were tested. 
+
+In addition to the Monte-Carlo Tree Search agent, two other agents were implemented for testing purposes. The first is a purely random agent, who chooses a random legal move with uniform probability. The second is a "Big Track" agent, who saves resource cards until they are able to purchase the longest available track on the board, at which point they do. 
+
+\section{Results}
+
+Here we present some of the results of our experiments, along with some analysis into their potential causes, and their implications for the usefulness of MCTS in certain situations, details of the MCTS implementation, or future research work to be done.
+
+\subsection{Effect of Seating Order}
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  	\centering
+  	\includegraphics[width=\linewidth]{graphs/rvr}
+  	\caption{Random agent vs. random agent winrate.}
+  	\label{fig:rvr}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  	\centering
+  	\includegraphics[width=\linewidth]{graphs/bvb}
+  	\caption{Big Track agent vs Big Track agent winrate.}
+  	\label{fig:bvb}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+	\centering
+	\includegraphics[width=\linewidth]{graphs/mvm}
+	\caption{Monte-Carlo Tree Search agent vs. Monte-Carlo Tree Search agent. 1000 iterations per turn, 1.0 exploration constant.}
+	\label{fig:mvm}
+\end{subfigure}
+\caption{Graphs demonstrating the clear advantage of going first, especially amongst the Monte-Carlo Tree Search agents.}
+\label{fig:graphs-seat-effect}
+\end{figure}
+
+First off, it is important to establish a baseline of the game using some simple and random agents. This will help determine what results are a product of the game conditions and rules, and what is a product of the specific algorithms applied to \textit{Ticket to Ride}. 
+
+The effect of seating order is exactly what one would expect. Amongst random agents there is a slight advantage to going first. This can be accounted for in a few ways. Firstly, when the game ends, depending on which player has hit the threshold of train-cars first, there is the possibility that some of the earlier players have one extra turn than the later players. Obviously, the probability of having an extra turn is the highest in the first seat, and lowest in the last seat. The advantage of having an extra turn is also clear: One more turn's worth of resources, and one more turn to play out resources which have been collected in order to gain points. One other factor is that the earlier players will have first dibs on the more valuable, longer, higher point tracks. The longer tracks are advantageous for a number of reasons. They are worth more points in general, they are worth more points per resource card, and they also are more efficient in terms of points per turn, because they may be built in one turn. Thus, because there are a much smaller number of long tracks than there are short tracks, so they are in high demand, an earlier seat order can grant a player a much higher chance of being able to purchase one of these tracks, and so providing a significant advantage.
+
+Below is a graph illustrating this effect. Figure \ref{fig:rvr} shows the winrate of random agents playing against each other in games of two through seven players. Similarly, Figure \ref{fig:bvb} shows the winrate of Big Track agents against eacgh other, in games of two to seven players. It is clearly evident that being seated first has a positive effect on winrate. 
+
+Figure \ref{fig:mvm} shows Monte-Carlo Tree Search agents playing amongst themselves. Data was only collected for games of two and three, and the sample sizes are smaller than the random and Big Track agents because of the amount of time it takes to run these simulations. However, the data is quite interesting. The advantage of going first amongst MCTS agents is huge compared to the advantage amongst the random agents (note the scale of the graphs). In a game of two MCTS agents, the agent who goes first has an 80\% chance of winning. Amongst two random agents, the first agent has only a 56\% chance of winning. We are unsure of the exact cause for this phenomenon, however a similar effect was noticed in Szita et. al. \cite{mcts_settlers}, in \textit{Settlers of Catan}. Further research into this effect, and to what extent it may change with more iterations or a better tuned exploration constant, is necessary.
+
+\subsection{Effect of Exploration Constant}
+
+\begin{figure}
+\begin{center}
+  \includegraphics[width=0.8\linewidth]{graphs/index}
+  \caption{Effect of exploration constant on winrate.}
+  \label{fig:explore_const}
+ \end{center}
+\end{figure}
+
+The exploration constant is an important parameter to the Monte-Carlo Tree Search algorithm. The exploration constant determines the willingness of the algorithm to try new, unexplored paths through the tree, as opposed to expanding upon an area with a known high success rate. We tested 6 different exploration constants in a game of one Big Track, Two random agents and one Monte-Carlo Tree Search agent, in that order. This selection was to give a reasonably diverse set of opponents for the MCTS agent. The constants which were tested were 0.3, 0.8, 1.0, 1.1, 1.2, and 2.5. These constants were then divided by the number of players in the game, as a normalization, before being put into the MCTS algorithm (see above for a description of the exploration constant, and its use in the MCTS algorithm). 
+
+Figure \ref{fig:explore_const} shows the result of these tests. The x-axis is the index of the player who won the game, 3 being the MCTS agent. Firstly, we can see that MCTS performs consistently better than the Big Track and random agents, regardless of the exploration constant, even while in the most disadvantageous seat. We can also see that even in the first seat the Big Track agent performs worse than a random agent. 
+
+More importantly, we see that the MCTS agent performs best with an exploration constant of 1.0. What is interesting is that the exploration constant of 1.1 performs significantly worse, and then the performance rebounds through 1.2 and is actually surprisingly good at 2.5, despite encouraging rampant exploration of the tree, which might actually be an advantageous trait. One explanation is that the sample size of our study was too small, and a more thorough data must be collected, and another explanation is that the success of MCTS is highly susceptible to small fluctuations in the exploration constant, and more data is needed to map those fluctuations. 
+
+\subsection{The Effect of the Number of Iterations}
+
+\begin{figure}
+\begin{center}
+  \includegraphics[width=0.8\linewidth]{graphs/m148}
+  \caption{Effect of iterations on winrate.}
+  \label{fig:iters}
+ \end{center}
+\end{figure}
+
+The effect of iterations can be seen in Figure \ref{fig:iters}. We tested 1000 iterations against 4000 iterations and 8000 iterations. It is clear that 8000 iterations out performed 1000 and 4000 iterations, however, what is interesting is the impact that seating order has, when combined with the number of iterations. If 1000 and 4000 are the first two players, in that order, they have an equal winrate. However, when they are the second and third players, in the same order as before, 1000 iterations is four times as likely to win. More research is needed to understand this effect.
+
+\subsection{General Success of the Algorithm}
+
+As discussed above, the algorithm does fairly well against Big Track and random agents, even when in a disadvantageous position on the board. This is with 1000 iterations per turn, and with various exploration constants. Another test was run, with 20,000 iterations per turn, and an exploration constant of 1.0, and the MCTS agent had a winrate of 80\%, the same as with 1000. This is interesting because of our other data showing that 8000 iterations outperformed 1000 and 4000. More work needs to be done on the effect of the number of iterations on the success of the algorithm. However, it is conclusive that the algorithm outperforms Big Track and random agents. 
+
+\section{Future Work}
+
+We are very interested in implementing the destinations mechanic, which would improve the level of strategy required to win by a significant amount. It would also make the planning aspect of the game much more complex, which is a particularly interesting aspect. Especially with regards to adversarial strategies involving disrupting other players planned routes and destinations. In order to do so effectively however, an agent would need to be able to accurately predict the destination of an opponent, which under the current random simulations done my MCTS might be difficult. The ability of MCTS to handle these kinds of adversaries, and also to take advantage of the benefits of this type of strategy are both interesting avenues to explore in the future. 
+
+Noting a problem described in the previous paragraph, the usage of uniform probability across legal moves during the MCTS simulation phase could possibly be improved by the usage of a simple heuristic \cite{rave}. Investigating to what extent this is possible, what types of heuristics are efficient and beneficial, and how it affects the performance of the MCTS agents are all areas of interest for future investigation. 
+
+It would also be interesting to determine which tracks are typically favored or owned by the winning players. This may give some insight into the types of strategies which develop out of MCTS. Perhaps these tracks and/or strategies vary depending on the number of iterations or exploration constant. 
+
+\section{Conclusions}
+
+In this paper we described an agent that plays \textit{Ticket to Ride} by applying Monte-Carlo Tree Search. The agent was shown to be quite strong against rudimentary agents. More work is needed to determine the limits of its skills. An exploration constant of 1.0 (divided by the number of players in the game) was shown to be the best, however more data is needed to solidify this conclusion. MCTS run with 8000 iterations per turn was shown to outperform 4000 and 1000 iterations, supporting the common assertion that more iterations are beneficial to the strength of the algorithm. The importance of seating order was also demonstrated conclusively, the earlier in the turn order, the more likely to win.
 
 \bibliographystyle{plain}
 \bibliography{bibliography}
